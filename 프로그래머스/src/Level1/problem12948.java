@@ -8,10 +8,9 @@ public class problem12948 {
 
     public String solution(String phone_number) {
         String answer = "";
-        for(int i=0;i<phone_number.length() - 4;i++) {
-            phone_number = phone_number.replace(phone_number.charAt(i), '*');
+        for(int i=0;i<phone_number.length();i++) {
+            answer += i >= phone_number.length() - 4 ? phone_number.charAt(i) : '*';
         }
-        answer = phone_number;
         return answer;
     }
 }
