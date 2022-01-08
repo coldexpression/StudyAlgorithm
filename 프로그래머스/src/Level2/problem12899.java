@@ -7,7 +7,7 @@ public class problem12899 {
 
     public static void main(String[] args) {
         problem12899 problem12899 = new problem12899();
-        System.out.println(problem12899.solution(500000000));
+        System.out.println(problem12899.solution(21));
     }
 
 
@@ -45,25 +45,46 @@ public class problem12899 {
             return answer;
         }
 
-        while(n >= count) {
-            int a = count / 3;
-            int b = count % 3;
-            answer = "";
-            if (b != 0) {
-                if (!store.get(a).isEmpty()) {
-                    answer += store.get(a) + store.get(b);
-                }
-            } else {
-                if (!store.get(a).isEmpty()) {
-                    answer += store.get(a-1) + store.get(3);
-                }
-            }
-            store.add(answer);
-            count++;
+        answer = sort(n, store);
+
+//        while(n >= count) {
+//            int a = count / 3;
+//            int b = count % 3;
+//            answer = "";
+//            if (b != 0) {
+//                if (!store.get(a).isEmpty()) {
+//                    answer += store.get(a) + store.get(b);
+//                }
+//            } else {
+//                if (!store.get(a).isEmpty()) {
+//                    answer += store.get(a-1) + store.get(3);
+//                }
+//            }
+//            store.add(answer);
+//            count++;
+//        }
+
+
+
+        return answer;
+    }
+
+    static String sort(int n, List<String> store) {
+        String answer = "";
+        int a = n / 3; // 20 => 6 => 1 (2-1)
+        int b = n % 3; // 20 => 2 => 3 (0->3)
+
+        if (b == 0) {
+            a = a - 1;
+            b = 3;
         }
 
-
-
+        if (a > 3) {
+            answer += sort(a, store);
+        } else {
+            answer += store.get(a);
+        }
+        answer += store.get(b);
         return answer;
     }
 }
