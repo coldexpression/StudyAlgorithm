@@ -27,14 +27,12 @@ public class problem1835 {
             boolean[] check = new boolean[n];
             int checkNum = 0;
             for (int i=0;i<n;i++) {
-                check[i] = validation(data[i]);
+                checkNum = 0;
+                if(!validation(data[i])) break;
+                checkNum = 1;
             }
 
-            for (int i=0;i<n;i++) {
-                checkNum = check[i] ? checkNum + 1 : checkNum;
-            }
-
-            answer = checkNum == n ? answer + 1 : answer;
+            answer = checkNum == 1 ? answer + 1 : answer;
         } else {
             for(int i=0;i<8;i++) {
                 if (findIndex(i) == -1) {
@@ -59,7 +57,6 @@ public class problem1835 {
         String temp = "";
         for(String word: photoZone) temp += word;
 
-//        System.out.println(temp);
 
         char s1 = data.charAt(0);
         char s2 = data.charAt(2);
@@ -71,16 +68,25 @@ public class problem1835 {
 
         switch (exp) {
             case '=' : {
-                if (distance == num) return true;
+                if (distance == (num+1)) {
+                    return true;
+                }
+                break;
             }
             case '>' : {
-                if (distance > num) return true;
+                if (distance > (num+1)) {
+                    return true;
+                }
+                break;
             }
             case '<' : {
-                if (distance < num) return true;
+                if (distance < (num+1)) {
+                    return true;
+                }
+                break;
             }
-            default: return false;
         }
+        return false;
 
     }
 }
