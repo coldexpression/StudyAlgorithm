@@ -4,7 +4,6 @@ import java.util.*;
 
 public class problem72411 {
 
-    static List<String> resultList = new ArrayList<>();
     static Map<Integer, String> tmpStore = new HashMap<>();
     static char[] table;
     static int count = 0;
@@ -17,9 +16,8 @@ public class problem72411 {
 
     public String[] solution(String[] orders, int[] course) {
         String[] answer = {};
-        int maxIndex = 0;
         List<String> wordStore = new ArrayList<>();
-        List<Integer> wordNumData = new ArrayList<>();
+        int index = 0;
         count = 0;
         max = 2;
 
@@ -38,20 +36,23 @@ public class problem72411 {
 
         int length = queue.size();
         char[] store = new char[length];
-        for(int i=0;i<length;i++) {
-            store[i] = queue.peek();
-            queue.remove();
+
+        while(!queue.isEmpty()) {
+            store[index] = queue.poll();
+            index++;
         }
+
 
         for(int i=0;i<course.length;i++) {
             table = new char[course[i]];
             for(int j=0;j<course[i];j++) table[j] = '0';
-            bfs(0, orders, store, course[i]);
-            maxIndex = -1;
-            for (int key : tmpStore.keySet()) {
-                System.out.println(key);
-                maxIndex = Math.max(key, maxIndex);
-            }
+            max = 2;
+            dfs(0, orders, store, course[i]);
+//            maxIndex = -1;
+//            for (int key : tmpStore.keySet()) {
+//                System.out.println(key);
+//                maxIndex = Math.max(key, maxIndex);
+//            }
 
 
 
@@ -64,7 +65,7 @@ public class problem72411 {
 
 
             if (!tmpStore.isEmpty()) {
-                String[] splits = tmpStore.get(maxIndex).split(" ");
+                String[] splits = tmpStore.get(max).split(" ");
                 for (String split : splits) {
                     wordStore.add(split);
                 }
@@ -73,6 +74,7 @@ public class problem72411 {
         }
 
         System.out.println("정답");
+
 
         answer = new String[wordStore.size()];
         for(int i=0;i<answer.length;i++) answer[i] = wordStore.get(i);
@@ -87,21 +89,30 @@ public class problem72411 {
         return answer;
     }
 
-    static void bfs(int n, String[] orders, char[] store, int courseNum) {
+    // * 2022-01-15
+    // 한턴이 도는 동안 courseNum을 만족하는 문자배열이 있다면 그것을 리스트에 넣어두고 다음턴부터 비교하여 중복되는것을 방지 [예) AC - CA 와 같은 것들]
+
+    static void dfs(int n, String[] orders, char[] store, int courseNum) {
         if (courseNum == count) {
             int orderNum = validation(orders, courseNum);
             if (orderNum >= max) {
-                char[] tmpTable = new char[table.length];
-                for(int i=0;i< tmpTable.length;i++) tmpTable[i] = table[i];
+                PriorityQueue<Character> splitWordStore = new PriorityQueue<>();
+                String mergeWord = "";
+                max = orderNum;
+//                char[] tmpTable = new char[table.length];
+//                for(int i=0;i< tmpTable.length;i++) tmpTable[i] = table[i];
+//
+//                Arrays.sort(tmpTable);
+                for(int i=0;i<table.length;i++) splitWordStore.add(table[i]);
+                while(!splitWordStore.isEmpty()) mergeWord += splitWordStore.poll();
 
-                Arrays.sort(tmpTable);
 //                max = orderNum;
 //                resultList.add(String.valueOf(table));
                 if (tmpStore.get(orderNum) == null) {
-                    tmpStore.put(orderNum, String.valueOf(tmpTable));
+                    tmpStore.put(orderNum, String.valueOf(mergeWord));
                 } else {
-                    if (!tmpStore.get(orderNum).contains(String.valueOf(tmpTable))) {
-                        tmpStore.put(orderNum, tmpStore.get(orderNum).concat(" " + String.valueOf(tmpTable)));
+                    if (!tmpStore.get(orderNum).contains(String.valueOf(mergeWord))) {
+                        tmpStore.put(orderNum, tmpStore.get(orderNum).concat(" " + String.valueOf(mergeWord)));
                     }
                 }
 
@@ -111,7 +122,7 @@ public class problem72411 {
                 if (searchIndex(store[i]) == -1) {
                     table[n] = store[i];
                     count++;
-                    bfs(n+1, orders, store, courseNum);
+                    dfs(n+1, orders, store, courseNum);
                     table[n] = '0';
                     count--;
                 }
@@ -132,20 +143,20 @@ public class problem72411 {
 //        System.out.println(table);
         for(String order: orders) {
             checkCount = 0;
-            boolean[] check = new boolean[courseNum];
+            int[] check = new int[courseNum];
             for (int i=0;i<courseNum;i++) {
                 if (order.indexOf(table[i]) != -1) {
 //                    System.out.println("order : " + order);
 //                    System.out.println(table);
 //                    System.out.println(table[i]);
-                    check[i] = true;
+                    check[i] = 1;
                 } else {
-                    check[i] = false;
+                    check[i] = 0;
                     break;
                 }
             }
-            for(boolean checking : check) {
-                if (!checking) {
+            for(int checking : check) {
+                if (checking == 0) {
                     checkCount = 0;
                     break;
                 } else {
