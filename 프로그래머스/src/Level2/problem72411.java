@@ -1,10 +1,13 @@
 package Level2;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class problem72411 {
 
-    static Map<Integer, String> tmpStore = new HashMap<>();
+//    static Map<Integer, String> tmpStore = new HashMap<>();
+    static Map<String, Integer> tmpStore = new HashMap<>();
     static char[] table;
     static int count = 0;
     static int max = 2;
@@ -19,6 +22,7 @@ public class problem72411 {
         String[] sortedOrders = {};
         List<String> wordStore = new ArrayList<>();
         int index = 0;
+        int maxValue = 0;
         count = 0;
         max = 2;
 
@@ -58,23 +62,58 @@ public class problem72411 {
 //                maxIndex = Math.max(key, maxIndex);
 //            }
 
+            Map<String, Integer> tmpStore2 = new HashMap<>();
 
+            tmpStore2 = tmpStore.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
+//            List<Map.Entry<String, Integer>> storeValue = new LinkedList<>(tmpStore.entrySet());
+//            storeValue.sort(Map.Entry.comparingByValue());
 
-            System.out.println("벨류");
-            for (String value : tmpStore.values()) {
-                System.out.println(value);
+            maxValue = -1;
+
+            System.out.println("정렬");
+            for(String key : tmpStore2.keySet()) {
+                System.out.println("key : " + key);
+                System.out.println("value : " + tmpStore2.get(key));
             }
+            System.out.println("종료");
 
+//            System.out.println("정렬");
+//            for(Map.Entry<String, Integer> sortedMap : storeValue) {
+//                System.out.println("key : " + sortedMap.getKey());
+//                System.out.println("value : " + sortedMap.getValue());
+//            }
+//            System.out.println("종료");
 
-
-            if (!tmpStore.isEmpty()) {
-                String[] splits = tmpStore.get(max).split(" ");
-                for (String split : splits) {
-                    wordStore.add(split);
+            for(String key: tmpStore2.keySet()) {
+                if (tmpStore2.get(key) >= maxValue) {
+                    maxValue = tmpStore2.get(key);
+                    wordStore.add(key);
                 }
-                tmpStore.clear();
             }
+
+            tmpStore.clear();
+            tmpStore2.clear();
+
+
+
+
+//            System.out.println("벨류");
+//            for (String value : tmpStore.values()) {
+//                System.out.println(value);
+//            }
+//
+//
+//
+//            if (!tmpStore.isEmpty()) {
+//                String[] splits = tmpStore.get(max).split(" ");
+//                for (String split : splits) {
+//                    wordStore.add(split);
+//                }
+//                tmpStore.clear();
+//            }
         }
 
         System.out.println("정답");
@@ -86,9 +125,9 @@ public class problem72411 {
 
         Arrays.sort(answer);
 
-//        for (String s : answer) {
-//            System.out.println(s);
-//        }
+        for (String s : answer) {
+            System.out.println(s);
+        }
 
         return answer;
     }
@@ -98,6 +137,8 @@ public class problem72411 {
 
     // * 2022-01-17
     // 두 번째 아이디어, orders 들을 Map<Integer, char[]> 형태로 해보기
+    // 세 번째 아이디어, Map<String, Integer> 형태로 해보기
+    // 즉, String 은 조합 Integer 는 orders 에 있는 조합의 수
 
     static void dfs(int n, String[] orders, char[] store, int courseNum) {
         if (courseNum == count) {
@@ -111,17 +152,23 @@ public class problem72411 {
 //
 //                Arrays.sort(tmpTable);
                 for(int i=0;i<table.length;i++) splitWordStore.add(table[i]);
-                while(!splitWordStore.isEmpty()) mergeWord += splitWordStore.poll();
+                while(!splitWordStore.isEmpty()) mergeWord = mergeWord.concat(String.valueOf(splitWordStore.poll()));
+
+                if (tmpStore.get(mergeWord) == null) {
+                    tmpStore.put(mergeWord, orderNum);
+                }
 
 //                max = orderNum;
 //                resultList.add(String.valueOf(table));
-                if (tmpStore.get(orderNum) == null) {
-                    tmpStore.put(orderNum, String.valueOf(mergeWord));
-                } else {
-                    if (!tmpStore.get(orderNum).contains(String.valueOf(mergeWord))) {
-                        tmpStore.put(orderNum, tmpStore.get(orderNum).concat(" " + String.valueOf(mergeWord)));
-                    }
-                }
+//                // 2022-01-17 Map <Integer, char> => <String, Integer> 전환
+//                if (tmpStore.get(orderNum) == null) {
+//                    tmpStore.put(orderNum, String.valueOf(mergeWord));
+//                } else {
+//                    if (!tmpStore.get(orderNum).contains(String.valueOf(mergeWord))) {
+//                        tmpStore.put(orderNum, tmpStore.get(orderNum).concat(" " + String.valueOf(mergeWord)));
+//                    }
+//                }
+
 
             }
         } else {
@@ -152,11 +199,13 @@ public class problem72411 {
         for(String order: orders) {
             checkNum = 0;
             if (orders.length - tmpCnt == 1 && valiCount < 1) break;
-            for (int i=0;i<courseNum;i++) {
-                if (order.indexOf(table[i]) != -1) {
-                    checkNum++;
-                } else {
-                    break;
+            if (order.length() >= courseNum) {
+                for (int i = 0; i < courseNum; i++) {
+                    if (order.indexOf(table[i]) != -1) {
+                        checkNum++;
+                    } else {
+                        break;
+                    }
                 }
             }
             valiCount = checkNum == courseNum ? valiCount+1 : valiCount;
