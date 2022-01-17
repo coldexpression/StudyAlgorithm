@@ -16,6 +16,7 @@ public class problem72411 {
 
     public String[] solution(String[] orders, int[] course) {
         String[] answer = {};
+        String[] sortedOrders = {};
         List<String> wordStore = new ArrayList<>();
         int index = 0;
         count = 0;
@@ -32,6 +33,9 @@ public class problem72411 {
             }
         }
 
+        sortedOrders = sorting(orders);
+
+
         System.out.println(queue);
 
         int length = queue.size();
@@ -47,7 +51,7 @@ public class problem72411 {
             table = new char[course[i]];
             for(int j=0;j<course[i];j++) table[j] = '0';
             max = 2;
-            dfs(0, orders, store, course[i]);
+            dfs(0, sortedOrders, store, course[i]);
 //            maxIndex = -1;
 //            for (int key : tmpStore.keySet()) {
 //                System.out.println(key);
@@ -91,6 +95,9 @@ public class problem72411 {
 
     // * 2022-01-15
     // 한턴이 도는 동안 courseNum을 만족하는 문자배열이 있다면 그것을 리스트에 넣어두고 다음턴부터 비교하여 중복되는것을 방지 [예) AC - CA 와 같은 것들]
+
+    // * 2022-01-17
+    // 두 번째 아이디어, orders 들을 Map<Integer, char[]> 형태로 해보기
 
     static void dfs(int n, String[] orders, char[] store, int courseNum) {
         if (courseNum == count) {
@@ -139,34 +146,42 @@ public class problem72411 {
 
     static int validation(String[] orders, int courseNum) {
         int valiCount = 0;
-        int checkCount = 0;
+        int checkNum = 0;
+        int tmpCnt = 0;
 //        System.out.println(table);
         for(String order: orders) {
-            checkCount = 0;
-            int[] check = new int[courseNum];
+            checkNum = 0;
+            if (orders.length - tmpCnt == 1 && valiCount < 1) break;
             for (int i=0;i<courseNum;i++) {
                 if (order.indexOf(table[i]) != -1) {
-//                    System.out.println("order : " + order);
-//                    System.out.println(table);
-//                    System.out.println(table[i]);
-                    check[i] = 1;
+                    checkNum++;
                 } else {
-                    check[i] = 0;
                     break;
                 }
             }
-            for(int checking : check) {
-                if (checking == 0) {
-                    checkCount = 0;
-                    break;
-                } else {
-                    checkCount++;
-                }
-            }
-            valiCount = checkCount == courseNum ? valiCount+1 : valiCount;
+            valiCount = checkNum == courseNum ? valiCount+1 : valiCount;
+            tmpCnt++;
         }
 
 //        System.out.println(valiCount);
         return valiCount;
+    }
+
+    static String[] sorting(String[] orders) {
+        PriorityQueue<Character> store = new PriorityQueue<>();
+        String[] returnOrders = new String[orders.length];
+        String tmpOrder = "";
+        int count = 0;
+        for(String order: orders) {
+            tmpOrder = "";
+            char[] words = order.toCharArray();
+            for(char word: words) store.add(word);
+            while(!store.isEmpty()) {
+                tmpOrder += store.poll();
+            }
+            returnOrders[count] = tmpOrder;
+            count++;
+        }
+        return returnOrders;
     }
 }
