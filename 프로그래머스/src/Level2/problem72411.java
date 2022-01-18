@@ -55,7 +55,7 @@ public class problem72411 {
             table = new char[course[i]];
             for(int j=0;j<course[i];j++) table[j] = '0';
             max = 2;
-            dfs(0, sortedOrders, store, course[i]);
+            dfs(0, 0, sortedOrders, store, course[i]);
 //            maxIndex = -1;
 //            for (int key : tmpStore.keySet()) {
 //                System.out.println(key);
@@ -140,23 +140,28 @@ public class problem72411 {
     // 세 번째 아이디어, Map<String, Integer> 형태로 해보기
     // 즉, String 은 조합 Integer 는 orders 에 있는 조합의 수
 
-    static void dfs(int n, String[] orders, char[] store, int courseNum) {
+    static void dfs(int n, int start, String[] orders, char[] store, int courseNum) {
         if (courseNum == count) {
-            int orderNum = validation(orders, courseNum);
-            if (orderNum >= max) {
-                PriorityQueue<Character> splitWordStore = new PriorityQueue<>();
-                String mergeWord = "";
-                max = orderNum;
+            PriorityQueue<Character> splitWordStore = new PriorityQueue<>();
+            String mergeWord = "";
+
+            for(int i=0;i<table.length;i++) splitWordStore.add(table[i]);
+//            mergeWord = new String(splitWordStore.toString());
+            while(!splitWordStore.isEmpty()) mergeWord += splitWordStore.poll();
+            System.out.println("mergeWord : " + mergeWord);
+            if (!tmpStore.containsKey(mergeWord)) {
+                int orderNum = validation(orders, courseNum);
+                if (orderNum >= max) {
+                    max = orderNum;
 //                char[] tmpTable = new char[table.length];
 //                for(int i=0;i< tmpTable.length;i++) tmpTable[i] = table[i];
 //
 //                Arrays.sort(tmpTable);
-                for(int i=0;i<table.length;i++) splitWordStore.add(table[i]);
-                while(!splitWordStore.isEmpty()) mergeWord = mergeWord.concat(String.valueOf(splitWordStore.poll()));
 
-                if (tmpStore.get(mergeWord) == null) {
-                    tmpStore.put(mergeWord, orderNum);
-                }
+
+                    if (tmpStore.get(mergeWord) == null) {
+                        tmpStore.put(mergeWord, orderNum);
+                    }
 
 //                max = orderNum;
 //                resultList.add(String.valueOf(table));
@@ -170,13 +175,14 @@ public class problem72411 {
 //                }
 
 
+                }
             }
         } else {
-            for(int i=0;i<store.length;i++) {
+            for(int i=start;i<store.length;i++) {
                 if (searchIndex(store[i]) == -1) {
                     table[n] = store[i];
                     count++;
-                    dfs(n+1, orders, store, courseNum);
+                    dfs(n+1, i+1, orders, store, courseNum);
                     table[n] = '0';
                     count--;
                 }
@@ -192,10 +198,18 @@ public class problem72411 {
     }
 
     static int validation(String[] orders, int courseNum) {
+        PriorityQueue<Character> store = new PriorityQueue<>();
+        String mergeWord = "";
         int valiCount = 0;
         int checkNum = 0;
         int tmpCnt = 0;
-//        System.out.println(table);
+//        for(char word: table) {
+//            store.add(word);
+//        }
+//        while(!store.isEmpty()) mergeWord = mergeWord.concat(String.valueOf(store.poll()));
+//
+//        if (tmpStore.get(mergeWord) != null) return 0;
+
         for(String order: orders) {
             checkNum = 0;
             if (orders.length - tmpCnt == 1 && valiCount < 1) break;
