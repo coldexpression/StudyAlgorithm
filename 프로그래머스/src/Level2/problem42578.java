@@ -1,6 +1,7 @@
 package Level2;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class problem42578 {
 
@@ -16,10 +17,9 @@ public class problem42578 {
 
     public int solution(String[][] clothes) {
         HashMap<String, Integer> store = new HashMap<>();
-        HashMap<String, String> exclusiveKey = new HashMap<>();
-        List<String> mokStore = new ArrayList<>();
         String keyword = "";
-        int answer = 0;
+        int answer = 1;
+        int count = 1;
         for (int i=0; i<clothes.length;i++) {
             keyword = clothes[i][1];
             if (store.containsKey(keyword)) {
@@ -29,49 +29,15 @@ public class problem42578 {
             }
         }
 
-        System.out.println(store);
-        // [1] 종류별로 한 개씩 입을 경우
-        for(Integer score : store.values()) answer += score;
+        answer = store.size();
 
-
-        for(String key: store.keySet()) {
-            System.out.println("key : " + key);
-            int count = 0;
-            // 탐색 해야할 종류의 갯수
-            int size = store.size() - exclusiveKey.size();
-            mokStore.add(key);
-            while (count != size) {
-                System.out.println("come in!");
-                int mok = 1;
-                int subAnswer = 0;
-                int check = 0;
-                for (String ele : mokStore) {
-                    mok *= store.get(ele);
-                }
-
-                for(String subKey: store.keySet()) {
-                    if(!mokStore.contains(subKey) && !exclusiveKey.containsKey(subKey)) {
-                        System.out.println("exclusiveKey : " + exclusiveKey);
-                        System.out.println("mokStore : " + mokStore);
-                        System.out.println("successSubKEY : " + subKey);
-                        subAnswer += mok * store.get(subKey);
-                        System.out.println("subAnswer : " + subAnswer);
-                        if(check == 0) {
-                            mokStore.add(subKey);
-                            exclusiveKey.put(mokStore.get(mokStore.size()-1), "");
-                            check++;
-                        }
-                    }
-                }
-//                mokStore.remove(mokStore.size()-2);
-                answer += subAnswer;
-                count++;
+        if (store.size() > 1) {
+            for (String key : store.keySet()) {
+                count *= store.get(key) + 1;
             }
-            System.out.println("come out!");
-            System.out.println("middle_answer : " + answer);
-            exclusiveKey.put(mokStore.get(0), "");
-            mokStore.clear();
+            count = count - 1;
         }
+        answer += count;
         System.out.println(answer);
         return answer;
     }
