@@ -62,14 +62,14 @@ public class problem17679 {
                 // 대각선의 블록이 고른 블록과 같은 것 이라면,
                 if (checker(row, col, row + 1, col + 1, pickBlock)) {
                     visited[row + 1][col + 1] = true;
-                    dfs(row + 1, col + 1, pickBlock);
+//                    dfs(row + 1, col + 1, pickBlock);
                 }
             }
             // 가장 오른쪽 블록 일 때,
             else if (col == game[row].length - 1) {
                 if (checker(row, col, row + 1, col - 1, pickBlock)) {
                     visited[row + 1][col - 1] = true;
-                    dfs(row + 1, col - 1, pickBlock);
+//                    dfs(row + 1, col - 1, pickBlock);
                 }
             }
             // 중간 지점의 블록 일 때.
@@ -79,14 +79,14 @@ public class problem17679 {
                     System.out.println("[row] : " + row);
                     System.out.println("[col] : " + col);
                     visited[row + 1][col + 1] = true;
-                    dfs(row + 1, col + 1, pickBlock);
+//                    dfs(row + 1, col + 1, pickBlock);
                 }
                 if (checker(row, col, row + 1, col - 1, pickBlock)) {
                     System.out.println("왼쪽 대각선");
                     System.out.println("[row] : " + row);
                     System.out.println("[col] : " + col);
                     visited[row + 1][col - 1] = true;
-                    dfs(row + 1, col - 1, pickBlock);
+//                    dfs(row + 1, col - 1, pickBlock);
                 }
             }
         }
