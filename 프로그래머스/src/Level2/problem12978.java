@@ -1,5 +1,6 @@
 package Level2;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class problem12978 {
 
@@ -12,21 +13,22 @@ public class problem12978 {
     public static void main(String[] args) {
         problem12978 problem12978 = new problem12978();
 //        problem12978.solution(5, new int[][]{{1,2,1},{2,3,3},{5,2,2},{1,4,2},{5,3,1},{5,4,2}}, 3);
-        problem12978.solution(6, new int[][]{{1,2,1},{1,3,2},{2,3,2},{3,4,3},{3,5,2},{3,5,3},{5,6,1}}, 1);
+//        problem12978.solution(6, new int[][]{{1,2,1},{1,3,2},{2,3,2},{3,4,3},{3,5,2},{3,5,3},{5,6,1}}, 4);
+//        problem12978.solution(5, new int[][]{{1,2,4},{1,3,1},{3,4,1},{4,2,1},{2,5,1}},4);
+        problem12978.solution(6, new int[][]{{1,2,2},{1,3,1},{3,1,2},{3,4,3},{3,5,1},{6,5,2},{4,6,2},{2,4,1}}, 3);
     }
 
     public int solution(int N, int[][] road, int K) {
         int answer = 0;
-        String[][] board = new String[N][N];
+        int[][] board = new int[N][N];
         board = init(board, N);
         board = loadData(board, road);
-        printBoard(board, N);
         answer = searchLoad(board, N, K);
         System.out.println(answer);
         return answer;
     }
 
-    private void printBoard(String[][] board, int n) {
+    private void printBoard(int[][] board, int n) {
         System.out.println("출력 시작");
         for(int i=0;i<n;i++) {
             for(int j=0;j<n;j++) {
@@ -37,65 +39,106 @@ public class problem12978 {
         System.out.println("출력 종료");
     }
 
-    private int searchLoad(String[][] board, int n, int k) {
+    private int searchLoad(int[][] board, int n, int k) {
         int answer = 1;
         int currentScore = 0;
+        int[] values = new int[n];
+        int[] visited = new int[n];
+        boolean check = false;
+
         Queue<Integer> nextList = new LinkedList<>();
         Queue<Integer> passList = new LinkedList<>();
         Queue<Integer> scoreList = new LinkedList<>();
-
+        Arrays.fill(values, 500001);
+        Arrays.fill(visited, 0);
         // 1번 마을과 근접한 마을 저장
+//        for(int i=0;i<n;i++) {
+//            if (board[0][i] != 500001 && currentScore + board[0][i] <= k) {
+//                nextList.add(i);
+//                scoreList.add(board[0][i]);
+//            }
+//        }
+
         for(int i=0;i<n;i++) {
-            if (!board[0][i].equals("")) {
-                nextList.add(i);
-                for(String score: board[0][i].split("/")) {
-                    int scoreNum = Integer.parseInt(score);
-                    if (currentScore + scoreNum <= k) {
-                        System.out.println(board[0][i]);
-                        scoreList.add(scoreNum);
-                    }
-                }
-            }
+            values[i] = board[0][i] == 500001 ? 500001 : board[0][i];
         }
 
-        passList.add(0);
+//        passList.add(0);
+        values[0] = 0;
+        visited[0] = 1;
 
-        System.out.println("nextList : " + nextList);
+        while(true) {
+            for(int i=0;i<n;i++) {
+                System.out.print(values[i] + " ");
+            }
+            System.out.println();
+            int pick = 500001;
+            int pickIndex = -1;
+            for(int i=0;i<n;i++) {
+                if (visited[i] != 1 && values[i] < pick) {
+                    pick = values[i];
+                    pickIndex = i;
+                }
+            }
+
+            if (pick == 500001 || pickIndex == -1) break;
+
+            visited[pickIndex] = 1;
+
+            System.out.println("pick >> " + pick);
+            System.out.println("pickIndex >> " + pickIndex);
+
+            for(int i=0;i<n;i++) {
+                if (visited[i] != 1 && board[i][pickIndex] != 500001) {
+                    System.out.println("들어온 i :" + i);
+                    values[i] = values[pickIndex] + board[i][pickIndex];
+
+                }
+            }
+
+
+        }
+
+        System.out.println("종료");
+        for (int value : values) {
+            System.out.print(value+ " ");
+        }
+
+        System.out.println();
+
+        return (int) Arrays.stream(values).filter(i -> i <= k).count();
 
         // 대기열에 있는 마을들을 순차적으로 방문
-        while(true) {
-            if (nextList.isEmpty() || scoreList.isEmpty()) break;
-            int pick = nextList.poll();
-
-            currentScore = scoreList.poll();
-
-            System.out.println("passList >> " + passList);
-            System.out.println("nextList >> " + nextList);
-            for(int i=0;i<n;i++) {
-                System.out.println(board[pick][i]);
-                if (!board[pick][i].equals("") && !passList.contains(i) && !nextList.contains(i)) {
-                    System.out.println("뽑은 마을 : " + pick);
-                    System.out.println("현재 점수 : " + currentScore);
-                    for(String score: board[pick][i].split("/")) {
-                        System.out.println("점수 목록 : " + score);
-                        int scoreNum = Integer.parseInt(score);
-                        if (currentScore + scoreNum <= k && !nextList.contains(i)) {
-                            answer++;
-                            nextList.add(i);
-                            scoreList.add(currentScore + scoreNum);
-                        }
-                    }
-                }
-            }
-            passList.add(pick);
-        }
-
-        System.out.println(passList);
-
-        return passList.size();
+//        while(true) {
+//            if (nextList.isEmpty()) break;
+//            int pick = nextList.poll();
+//            answer++;
+//            currentScore = scoreList.poll();
+//
+//            System.out.println("passList >> " + passList);
+//            System.out.println("nextList >> " + nextList);
+//            System.out.println("뽑은 마을 : " + pick);
+//            for (int i = 0; i < n; i++) {
+//                int scoreNum = board[pick][i];
+//                if (board[pick][i] != -1 && currentScore + scoreNum <= k) {
+//                    System.out.println(board[pick][i]);
+//                    System.out.println("현재 마을 : " + i);
+//                    System.out.println("현재 점수 : " + currentScore);
+//                    nextList.add(i);
+//                    scoreList.add(currentScore + scoreNum);
+//                }
+//            }
+//            passList.add(pick);
+//        }
+//
+//
+//        System.out.println(passList);
+//
+//
+//        return 0;
     }
 
-    private String[][] loadData(String[][] board, int[][] road) {
+    private int[][] loadData(int[][] board, int[][] road) {
         int p1;
         int p2;
         int distance;
@@ -103,16 +146,21 @@ public class problem12978 {
             p1 = road[i][0] - 1;
             p2 = road[i][1] - 1;
             distance = road[i][2];
-            board[p1][p2] = board[p1][p2].equals("") ? board[p1][p2].concat(String.valueOf(distance)) : board[p1][p2].concat("/" + String.valueOf(distance));
-            board[p2][p1] = board[p2][p1].equals("") ? board[p2][p1].concat(String.valueOf(distance)) : board[p2][p1].concat("/" + String.valueOf(distance));
+            if (board[p1][p2] != 500001) {
+                board[p1][p2] = Math.min(board[p1][p2], distance);
+                board[p2][p1] = Math.min(board[p2][p1], distance);
+            } else {
+                board[p1][p2] = distance;
+                board[p2][p1] = distance;
+            }
         }
         return board;
     }
 
-    private String[][] init(String[][] board, int n) {
+    private int[][] init(int[][] board, int n) {
         for(int i=0;i<n;i++)
             for(int j=0;j<n;j++)
-                board[i][j] = "";
+                board[i][j] = 500001;
             return board;
     }
 
