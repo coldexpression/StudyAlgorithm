@@ -8,70 +8,81 @@ public class problem17678 {
 
     public static void main(String[] args) {
         problem17678 problem17678 = new problem17678();
-//        problem17678.solution(1, 1, 5, new String[]{"08:00", "08:01", "08:02", "08:03"});
+        problem17678.solution(1, 1, 5, new String[]{"08:00", "08:01", "08:02", "08:03"});
 //        problem17678.solution(2, 10, 2, new String[]{"09:10", "09:09", "08:00"});
 //        problem17678.solution(1, 1, 5, new String[]{"00:01", "00:01", "00:01", "00:01", "00:01"});
 //        problem17678.solution(2, 1, 2, new String[]{"09:00", "09:00", "09:00", "09:00"});
 //        problem17678.solution(10,60,45, new String[]{"23:59","23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59"});
-        problem17678.solution(10,60,45, new String[]{"1:00","11:00", "10:59", "2:12", "2:00", "13:59", "15:59", "24:00", "24:00", "24:00", "24:00", "24:00", "24:00", "24:00", "24:00"});
+//        problem17678.solution(10,60,45, new String[]{"1:00","11:00", "10:59", "2:12", "2:00", "13:59", "15:59", "24:00", "24:00", "24:00", "24:00", "24:00", "24:00", "24:00", "24:00"});
     }
 
     public String solution(int n, int t, int m, String[] timetable) {
         String answer = "";
         String startTime = "09:00";
-        HashMap<String, Stack<String>> busTime = new HashMap<>();
-        PriorityQueue<String> originTimes = new PriorityQueue<>(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                Date date1 = null;
-                Date date2 = null;
-                try {
-                    date1 = simpleDateFormat.parse(o1);
-                    date2 = simpleDateFormat.parse(o2);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-                return date1.compareTo(date2);
-            }
-        });
-        PriorityQueue<String> nextTimes = new PriorityQueue<>(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
-                Date date1 = null;
-                Date date2 = null;
-                try {
-                    date1 = simpleDateFormat.parse(o1);
-                    date2 = simpleDateFormat.parse(o2);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-                return date2.compareTo(date1);
-            }
-        });
+        HashMap<Integer, Stack<Integer>> busTime = new HashMap<>();
+//        PriorityQueue<String> originTimes = new PriorityQueue<>(new Comparator<String>() {
+//            @Override
+//            public int compare(String o1, String o2) {
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+//                Date date1 = null;
+//                Date date2 = null;
+//                try {
+//                    date1 = simpleDateFormat.parse(o1);
+//                    date2 = simpleDateFormat.parse(o2);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                return date1.compareTo(date2);
+//            }
+//        });
+        PriorityQueue<Integer> originTimes = new PriorityQueue<>();
+//        PriorityQueue<String> nextTimes = new PriorityQueue<>(new Comparator<String>() {
+//            @Override
+//            public int compare(String o1, String o2) {
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+//                Date date1 = null;
+//                Date date2 = null;
+//                try {
+//                    date1 = simpleDateFormat.parse(o1);
+//                    date2 = simpleDateFormat.parse(o2);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                return date2.compareTo(date1);
+//            }
+//        });
+        PriorityQueue<Integer> nextTimes = new PriorityQueue<>(Collections.reverseOrder());
         int originM = m;
         for(int i=0;i<timetable.length;i++) timetable[i] = timetable[i].equals("24:00") ? "23:59" : timetable[i];
 
 
-        for(String time: timetable) originTimes.add(time);
+        for(String time: timetable) {
+            int hour = Integer.parseInt(time.split(":")[0]);
+            int minutes = Integer.parseInt(time.split(":")[1]);
+            int total = hour * 60 + minutes;
+            originTimes.add(total);
+//            originTimes.add(time);
+        }
+
+        System.out.println(originTimes);
 
         while(n != 0) {
 //            PriorityQueue<String> times = new PriorityQueue<>(Collections.reverseOrder());
-            Stack<String> times = new Stack<>();
+            Stack<Integer> times = new Stack<>();
             int startHour = Integer.parseInt(startTime.split(":")[0]);
             int startMinutes = Integer.parseInt(startTime.split(":")[1]);
             int waitHour = 0;
             int waitMinutes = 0;
-            nextTimes.add(startTime);
+            int startTotal = startHour * 60 + startMinutes;
+            nextTimes.add(startTotal);
             m = originM;
             while (m != 0) {
-                String waitTime = originTimes.peek();
                 if (originTimes.isEmpty()) break;
-                waitHour = Integer.parseInt(waitTime.split(":")[0]);
-                waitMinutes = Integer.parseInt(waitTime.split(":")[1]);
+                int waitTime = originTimes.peek();
+                waitHour = waitTime / 60;
+                waitMinutes = waitTime - (waitHour * 60);
 
                 if (startHour > waitHour || (startHour == waitHour && startMinutes >= waitMinutes)) {
                     times.add(waitTime);
@@ -80,36 +91,49 @@ public class problem17678 {
                 } else break;
             }
 
-            busTime.put(startTime, times);
+            busTime.put(startTotal, times);
             System.out.println(busTime);
             n--;
-            startMinutes = startMinutes + t < 60 ? startMinutes + t : 60 - t;
-            startHour = startMinutes <= 0 ? startHour + 1 : startHour;
-            startMinutes = Math.abs(startMinutes);
+            startTotal = startTotal + t;
+            startHour = startTotal / 60;
+            startMinutes = startTotal - (startHour * 60);
             startTime = "";
             startTime = startHour < 10 ? startTime.concat("0" + String.valueOf(startHour)) : startTime.concat(String.valueOf(startHour));
             startTime += ":";
             startTime = startMinutes < 10 ? startTime.concat("0" + String.valueOf(startMinutes)) : startTime.concat(String.valueOf(startMinutes));
+//            startMinutes = startMinutes + t < 60 ? startMinutes + t : 60 - t;
+//            startHour = startMinutes <= 0 ? startHour + 1 : startHour;
+//            startMinutes = Math.abs(startMinutes);
+//            startTime = "";
+//            startTime = startHour < 10 ? startTime.concat("0" + String.valueOf(startHour)) : startTime.concat(String.valueOf(startHour));
+//            startTime += ":";
+//            startTime = startMinutes < 10 ? startTime.concat("0" + String.valueOf(startMinutes)) : startTime.concat(String.valueOf(startMinutes));
             System.out.println("startTime : " + startTime);
         }
 
         System.out.println(busTime);
         System.out.println(nextTimes);
-        String pickTime = nextTimes.poll();
+        int pickTime = nextTimes.poll();
         System.out.println("pickTime : " + pickTime);
         if (!busTime.get(pickTime).isEmpty() && busTime.get(pickTime).size() == originM) {
-            int timeHour = Integer.parseInt(busTime.get(pickTime).peek().split(":")[0]);
-            int timeMinutes = Integer.parseInt(busTime.get(pickTime).peek().split(":")[1]);
-            timeMinutes -= 1;
-            timeHour = timeMinutes < 0 ? timeHour - 1 : timeHour;
-            timeHour = timeHour >= 24 ? timeHour - 24 : timeHour;
-            timeMinutes = timeMinutes < 0 ? 60 + timeMinutes : timeMinutes;
+            int timeTotal = busTime.get(pickTime).peek();
+            timeTotal -= 1;
+            int timeHour = timeTotal / 60;
+            int timeMinutes = timeTotal - (timeHour * 60);
+//            timeHour = timeMinutes < 0 ? timeHour - 1 : timeHour;
+//            timeHour = timeHour >= 24 ? timeHour - 24 : timeHour;
+//            timeMinutes = timeMinutes < 0 ? 60 + timeMinutes : timeMinutes;
             answer = "";
             answer = timeHour < 10 ? answer.concat("0" + String.valueOf(timeHour)) : answer.concat(String.valueOf(timeHour));
             answer += ":";
             answer = timeMinutes < 10 ? answer.concat("0" + String.valueOf(timeMinutes)) : answer.concat(String.valueOf(timeMinutes));
         } else {
-            answer = pickTime;
+            int pickHour = pickTime / 60;
+            int pickMinutes = pickTime - (pickHour * 60);
+            answer = "";
+            answer = pickHour < 10 ? answer.concat("0" + String.valueOf(pickHour)) : answer.concat(String.valueOf(pickHour));
+            answer += ":";
+            answer = pickMinutes < 10 ? answer.concat("0" + String.valueOf(pickMinutes)) : answer.concat(String.valueOf(pickMinutes));
         }
         System.out.println("정답 : " + answer);
         return answer;
