@@ -9,7 +9,9 @@ public class problem49191 {
     public static void main(String[] args) {
         problem49191 problem49191 = new problem49191();
 //        problem49191.solution(5, new int[][]{{4,3},{4,2},{3,2},{1,2},{2,5}});
-        problem49191.solution(2, new int[][]{{1,2}});
+//        problem49191.solution(100, new int[][]{{1,2},{1,3}});
+//        problem49191.solution(5, new int[][]{{4,2},{4,3},{4,1},{1,2}});
+        problem49191.solution(6, new int[][]{{1,6},{2,6},{3,6},{4,6}});
     }
 
     public int solution(int n, int[][] results) {
@@ -43,7 +45,8 @@ public class problem49191 {
         }
 
         for (int key : totalPlayer) {
-            Player player = new Player(key, parentStore.get(key), childStore.get(key));
+            List<Integer> objects = new ArrayList<>();
+            Player player = new Player(key, parentStore.getOrDefault(key, objects), childStore.getOrDefault(key, objects));
             players.add(player);
         }
 
@@ -53,13 +56,24 @@ public class problem49191 {
             System.out.println("플레이어 자식 : " + player.child);
         }
 
-        for(int i=0;i<n;i++) {
-            dfs(players, "P", i);
-            dfs(players, "C", i);
+        System.out.println(players);
+
+        for(int index: totalPlayer) {
+            currentPlayers = new HashSet<>();
+            System.out.println("index= " + index);
+            dfs(players, "P", index);
+            dfs(players, "C", index);
             answer = currentPlayers.size() == n -1 ? answer + 1 : answer;
             System.out.println(currentPlayers);
-            currentPlayers.clear();
         }
+
+//        for(int i=0;i<n;i++) {
+//            dfs(players, "P", i);
+//            dfs(players, "C", i);
+//            answer = currentPlayers.size() == n -1 ? answer + 1 : answer;
+//            System.out.println(currentPlayers);
+//            currentPlayers.clear();
+//        }
 
         System.out.println(answer);
         return answer;
@@ -69,19 +83,28 @@ public class problem49191 {
 //        if (currentPlayers.size() == n - 1) {
 //            return;
 //        }
-
-        Player player = players.get(startIndex);
-        if (word.equals("P") && player.parent != null) {
-            for (int j = 0; j < player.parent.size(); j++) {
-                currentPlayers.add(player.parent.get(j));
-                dfs(players, "P", player.parent.get(j));
-            }
-        } else if (word.equals("C") && player.child != null) {
-            for (int j = 0; j < player.child.size(); j++) {
-                currentPlayers.add(player.child.get(j));
-                dfs(players, "C", player.child.get(j));
-            }
+        System.out.println("startINdex : " + startIndex);
+        int count = 0;
+        for (Player player : players) {
+            if (player.index == startIndex) break;
+            count++;
         }
+        Player player = players.get(count);
+        if (word.equals("P") && !player.parent.isEmpty()) {
+            for (int j = 0; j < player.parent.size(); j++) {
+                if (!currentPlayers.contains(player.parent.get(j))) {
+                    currentPlayers.add(player.parent.get(j));
+                    dfs(players, "P", player.parent.get(j));
+                }
+            }
+        } else if (word.equals("C") && !player.child.isEmpty()) {
+            for (int j = 0; j < player.child.size(); j++) {
+                if (!currentPlayers.contains(player.child.get(j))) {
+                    currentPlayers.add(player.child.get(j));
+                    dfs(players, "C", player.child.get(j));
+                }
+            }
+        } else if (player.parent == null || player.child == null) return;
     }
 
     private static class Player {
