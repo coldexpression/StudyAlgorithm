@@ -7,38 +7,35 @@ public class p1 {
 
     public static void main(String[] args) {
         p1 p1 = new p1();
-//        p1.solution(new int[]{93,30,55},new int[]{1,30,5});
-        p1.solution(new int[]{95, 90, 99, 99, 80, 99}, new int[]{1, 1, 1, 1, 1, 1});
+        p1.solution(new int[]{2,6,8,14});
+//        p1.solution(new int[]{1,2,3});
     }
 
-    public int[] solution(int[] progresses, int[] speeds) {
-        int[] answer = {};
-        int sum = 0;
-        List<Integer> waitList = new ArrayList<>();
-        List<Integer> resultList = new ArrayList<>();
-        for(int i=0;i<progresses.length;i++) {
-            int restTime = 100 - progresses[i];
-            int useDay = restTime % speeds[i] == 0 ? restTime / speeds[i] : (restTime / speeds[i]) + 1;
-            waitList.add(useDay);
-        }
-        System.out.println(waitList);
-        for(int i=0;i<waitList.size();i++) {
+    public int solution(int[] arr) {
+        int answer = 0;
+        Arrays.sort(arr);
+        for(int i=0;i<arr.length-1;i++) {
+            int originNum = arr[i];
+            int pivotNum = arr[i];
+            int originSubNum = arr[i+1];
             int count = 1;
-            int pivot = waitList.get(i);
-            if (sum == progresses.length) break;
-            System.out.println(pivot);
-            for(int j=i+1;j<waitList.size();j++) {
-                if (pivot >= waitList.get(j)) count++;
-                else {
-                    i = j - 1;
-                    break;
+            int subCount = 2;
+            System.out.println("기준 원소 : " + originNum);
+            System.out.println("비교 원소 : " + originSubNum );
+            while(pivotNum != arr[i+1]) {
+                if (pivotNum > arr[i+1]) {
+                    arr[i+1] = originSubNum * subCount;
+//                    System.out.println("현재 비교 원소 : " + arr[i+1]);
+                    subCount++;
+                    pivotNum = originNum;
+                    count = 1;
                 }
+                pivotNum = originNum*count;
+                count++;
             }
-            sum += count;
-            resultList.add(count);
+            System.out.println(arr[i+1]);
         }
-        System.out.println(resultList);
-        answer = resultList.stream().mapToInt(i -> i).toArray();
+        System.out.println(arr[arr.length-1]);
         return answer;
     }
 }

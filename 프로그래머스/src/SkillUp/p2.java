@@ -6,105 +6,65 @@ public class p2 {
 
     public static void main(String[] args) {
         p2 p2 = new p2();
-        p2.solution(new int[][]{{2,-1,4},{-2,-1,4},{0,-1,1},{5,-8,-12},{5,8,12}});
-//        p2.solution(new int[][]{{0,1,-1},{1,0,-1},{1,0,1},{1,0,2}});
-//        p2.solution(new int[][]{{1,0,-1},{0,1,-1},{0,1,3},{0,1,-2}});
-//        p2.solution(new int[][]{{1,-1,0},{2,-1,0},{4,-1,0}});
+        p2.solution("100-200*300-500+20");
     }
 
-    public String[] solution(int[][] line) {
-        String[] answer = {};
-        List<long[]> spotList = new ArrayList<>();
-        long rowMax = Long.MIN_VALUE;
-        long rowMin = Long.MAX_VALUE;
-        long colMax = Long.MIN_VALUE;
-        long colMin = Long.MAX_VALUE;
-        boolean check = false;
-        long row , col = 0;
-        for(int i=0;i<line.length;i++) {
-            for(int j=i+1;j<line.length;j++) {
-                long[] position = findSpot(line[i], line[j]);
-                if(position[0] != Long.MAX_VALUE && position[1] != Long.MAX_VALUE) {
-                    spotList.add(position);
+    public long solution(String expression) {
+        long answer = 0;
+        int count = 0;
+        String numStore = "";
+        Queue<String> queue = new LinkedList<>();
+        List<String> list = new ArrayList<>();
+        queue.add("+-*");
+        queue.add("+*-");
+        queue.add("-+*");
+        queue.add("-*+");
+        queue.add("*+-");
+        queue.add("*-+");
+
+        for(int i=0;i<expression.length();i++) {
+            char exp = expression.charAt(i);
+            if (i == expression.length() -1 && !numStore.equals("")) list.add(numStore);
+            if (Character.isDigit(exp)) {
+                numStore += exp;
+            } else {
+                list.add(numStore);
+                numStore = "";
+                list.add(String.valueOf(exp));
+            }
+        }
+
+        System.out.println(list);
+
+        while(!queue.isEmpty()) {
+            String ops = queue.poll();
+            List<String> subList = new ArrayList<>(list);
+            for(int i=0;i<ops.length();i++) {
+                char op = ops.charAt(i);
+                for(int j=0;j<subList.size();j++) {
+                    if (subList.get(j).equals(String.valueOf(op))) {
+                        int n1 = Integer.parseInt(list.get(j-1));
+                        int n2 = Integer.parseInt(list.get(j+1));
+                        int sum = calc(op, n1, n2);
+                        subList.remove(j-1);
+                        subList.remove(j-1);
+                        subList.remove(j-1);
+                        subList.add(j-1, String.valueOf(sum));
+                    }
                 }
+                System.out.println("subList 결과 : " + subList);
             }
         }
-
-        for (long[] ints : spotList) {
-            System.out.println("["+ints[0]+","+ints[1]+"]");
-            if (ints[0] != 0 && ints[1] != 0) {
-                check = true;
-                break;
-            }
-        }
-
-        if(!check) return new String[]{"*"};
-
-        Collections.sort(spotList, new Comparator<long[]>() {
-            @Override
-            public int compare(long[] o1, long[] o2) {
-                if (o1[1] == o2[1]) return (int) (o1[0]-o2[0]);
-                return (int) (o2[1]-o1[1]);
-            }
-        });
-        System.out.println("정렬 후");
-        for (long[] ints : spotList) {
-            System.out.println("["+ints[0]+","+ints[1]+"]");
-            rowMax = Math.max(rowMax, ints[1]);
-            rowMin = Math.min(rowMin, ints[1]);
-            colMax = Math.max(colMax, ints[0]);
-            colMin = Math.min(colMin, ints[0]);
-        }
-        System.out.println("Max => ["+colMax+", "+rowMax+"]");
-        System.out.println("Min => ["+colMin+", "+rowMin+"]");
-
-        if (rowMax == rowMin) row = rowMax;
-        else row = Math.abs(rowMax - rowMin) + 1;
-
-        if (colMax == colMin) col = colMax;
-        else col = Math.abs(colMax- colMin) + 1;
-
-        answer = new String[(int)row];
-        Arrays.fill(answer, "");
-        for(int i=0;i<row;i++) {
-            for(int j=0;j<col;j++) {
-                answer[i] += ".";
-            }
-        }
-        for (long[] position : spotList) {
-            long pCol = position[0] == colMin && position[0] == colMax ? 0 : position[0] + Math.abs(colMin);
-            long pRow = position[1] == rowMax && position[1] == rowMin ? 0 : rowMax - position[1];
-            System.out.println("현재 row : " + pRow);
-            System.out.println("현재 col : " + pCol);
-            System.out.println("col >> " + col);
-            StringBuilder sb = new StringBuilder(answer[(int)pRow]);
-            sb.setCharAt((int)pCol, '*');
-            answer[(int)pRow] = sb.toString();
-        }
-
-        for (String s : answer) {
-            System.out.println(s);
-        }
+        System.out.println(list);
         return answer;
     }
 
-    private long[] findSpot (int[] exp1, int[] exp2) {
-        double[] middle = new double[2];
-        long[] result = new long[2];
-        long a = exp1[0];
-        long b = exp1[1];
-        long e = exp1[2];
-        long c = exp2[0];
-        long d = exp2[1];
-        long f = exp2[2];
-        middle[0] = ((double)(b*f) - (e*d)) / ((a*d) - (b*c));
-        middle[1] = ((double)(e*c) - (a*f)) / ((a*d) - (b*c));
-        if ((middle[0]-(long)middle[0]) == 0.0 && ((middle[1]-(long)(middle[1]) == 0.0))) {
-            result[0] = (long)middle[0];
-            result[1] = (long)middle[1];
-        } else {
-            result[0] = result[1] = Long.MAX_VALUE;
+    private int calc(char op, int n1, int n2) {
+        switch (op) {
+            case '+' : return (n1 + n2);
+            case '-' : return (n1 - n2);
+            case '*' : return (n1 * n2);
         }
-        return result;
+        return 0;
     }
 }
