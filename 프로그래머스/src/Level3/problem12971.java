@@ -14,36 +14,24 @@ public class problem12971 {
 
     public int solution(int sticker[]) {
         int answer = 0;
-        int front = 0;
-        int rear = 0;
-        int a1 = 0;
-        int index = 0;
-        HashSet<Integer> currentIndex = new HashSet<>();
-        int lastIndex = sticker.length - 1;
-        for (int start = 0; start <= lastIndex; start++) {
-            index = 0;
-            a1 = 0;
-            if (sticker.length % 2 == 0 && start == 2) {
-                break;
-            }
-            System.out.println("start >> " + start);
-            for (int i = start; i <= lastIndex + start; i = i + 2) {
-                index = i > lastIndex ? i - (lastIndex + 1)  : i;
-                System.out.println("i >> " + i);
-                front = index + 1 > lastIndex ? (lastIndex + 1) - lastIndex - 1 : index + 1;
-                rear = index - 1 < 0 ? (lastIndex + 1) + index - 1 : index - 1;
-                if (!currentIndex.contains(index)) {
-                    a1 += sticker[index];
-                    currentIndex.add(front);
-                    currentIndex.add(rear);
-                    currentIndex.add(index);
-                }
-            }
-            System.out.println(a1);
-            answer = Math.max(answer, a1);
-            currentIndex.clear();
+        int n = sticker.length;
+        int[] dp1 = new int[n];
+        int[] dp2 = new int[n];
+
+        // 첫 번째 스티커를 무조건 사용하는 경우 + 마지막 스티커는 사용하지 않는다.
+        dp1[0] = sticker[0];
+        dp1[1] = dp1[0];
+        for(int i=2;i<n;i++) {
+            dp1[i] = Math.max(dp1[i-2] + sticker[i], dp1[i-1]);
         }
 
+        // 첫 번째 스티커를 사용하지 않는 경우 + 마지막 스티커는 사용한다.
+        dp2[0] = 0;
+        dp2[1] = sticker[1];
+        for(int i=2;i<n;i++) {
+            dp2[i] = Math.max(dp2[i-2] + sticker[i], dp2[i-1]);
+        }
+        answer = Math.max(dp1[n-2], dp2[n-1]);
         System.out.println(answer);
         return answer;
     }
