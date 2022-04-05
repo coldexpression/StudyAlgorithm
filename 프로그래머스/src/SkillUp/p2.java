@@ -6,65 +6,52 @@ public class p2 {
 
     public static void main(String[] args) {
         p2 p2 = new p2();
-        p2.solution("100-200*300-500+20");
+        p2.solution(4);
     }
 
-    public long solution(String expression) {
-        long answer = 0;
-        int count = 0;
-        String numStore = "";
-        Queue<String> queue = new LinkedList<>();
-        List<String> list = new ArrayList<>();
-        queue.add("+-*");
-        queue.add("+*-");
-        queue.add("-+*");
-        queue.add("-*+");
-        queue.add("*+-");
-        queue.add("*-+");
+    public int[] solution(int n) {
+        List<Integer> answerStore = new ArrayList<>();
+        int[] answer = {};
+        int[][] board = new int[n][n];
+        int index = 1;
+        int col = 0;
+        int row = n-1;
+        int startRow = 0;
+        int startCol = 0;
+        int endRow = n-1;
+        int endCol = n-1;
+        int round = 0;
+        while (true) {
+            if (startRow >= n || startCol >= n || board[startRow][startCol] != 0) break;
+            for (int i = startRow; i <= endRow; i++) {
+                if (board[i][startCol] == 0) board[i][startCol] = index++;
+                else break;
+            }
+            for (int i = startCol+1; i <= endCol; i++) {
+                if (board[endRow][i] == 0) board[endRow][i] = index++;
+                else break;
+            }
+            startRow++;
+            for (int i = endRow-1; i >= startRow; i--) {
+                if (board[i][i-round] == 0) board[i][i-round] = index++;
+                else break;
+            }
+            startRow++;
+            startCol++;
+            round++;
+            endRow--;
+            endCol -= 2;
+        }
 
-        for(int i=0;i<expression.length();i++) {
-            char exp = expression.charAt(i);
-            if (i == expression.length() -1 && !numStore.equals("")) list.add(numStore);
-            if (Character.isDigit(exp)) {
-                numStore += exp;
-            } else {
-                list.add(numStore);
-                numStore = "";
-                list.add(String.valueOf(exp));
+        for(int i=0;i<board.length;i++) {
+            for(int j=0;j<board[i].length;j++) {
+                if (board[i][j] == 0) break;
+                answerStore.add(board[i][j]);
             }
         }
 
-        System.out.println(list);
-
-        while(!queue.isEmpty()) {
-            String ops = queue.poll();
-            List<String> subList = new ArrayList<>(list);
-            for(int i=0;i<ops.length();i++) {
-                char op = ops.charAt(i);
-                for(int j=0;j<subList.size();j++) {
-                    if (subList.get(j).equals(String.valueOf(op))) {
-                        int n1 = Integer.parseInt(list.get(j-1));
-                        int n2 = Integer.parseInt(list.get(j+1));
-                        int sum = calc(op, n1, n2);
-                        subList.remove(j-1);
-                        subList.remove(j-1);
-                        subList.remove(j-1);
-                        subList.add(j-1, String.valueOf(sum));
-                    }
-                }
-                System.out.println("subList 결과 : " + subList);
-            }
-        }
-        System.out.println(list);
+        System.out.println(answerStore);
+        answer = answerStore.stream().mapToInt(i -> i).toArray();
         return answer;
-    }
-
-    private int calc(char op, int n1, int n2) {
-        switch (op) {
-            case '+' : return (n1 + n2);
-            case '-' : return (n1 - n2);
-            case '*' : return (n1 * n2);
-        }
-        return 0;
     }
 }
