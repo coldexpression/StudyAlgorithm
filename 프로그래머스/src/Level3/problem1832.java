@@ -16,46 +16,40 @@ public class problem1832 {
 
     public int solution(int m, int n, int[][] cityMap) {
         int answer = 0;
-        visited = new boolean[m][n];
-        count = 0;
-        for(int i=0;i<m;i++) {
-            for(int j=0;j<n;j++) {
-                if (cityMap[i][j] == 1) visited[i][j] = true;
-                else visited[i][j] = false;
+        int[][] dpRight = new int[m][n];
+        int[][] dpDown = new int[m][n];
+
+        // 첫 Row 경우의 수 구하기
+        for (int i = 0; i < n; i++) {
+            if (cityMap[0][i] == 1) break;
+            dpRight[0][i] = 1;
+        }
+
+        // 첫 Col 경우의 수 구하기
+        for (int i = 0; i < m; i++) {
+            if (cityMap[i][0] == 1) break;
+            dpDown[i][0] = 1;
+        }
+
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (cityMap[i][j] == 1) continue;
+
+                if (cityMap[i-1][j] == 0) {
+                    dpDown[i][j] += (dpRight[i-1][j] + dpDown[i-1][j]) % MOD;
+                } else if (cityMap[i-1][j] == 2) {
+                    dpDown[i][j] += dpDown[i-1][j] % MOD;
+                }
+
+                if (cityMap[i][j-1] == 0) {
+                    dpRight[i][j] += (dpRight[i][j-1] + dpDown[i][j-1]) % MOD;
+                } else if (cityMap[i][j-1] == 2) {
+                    dpRight[i][j] += dpRight[i][j-1] % MOD;
+                }
             }
         }
-        visited[0][0] = true;
-        // 오른쪽 방향으로 출발
-        dfs(0, 1, m-1, n-1, cityMap, 'R');
-
-        // 아래 쪽 방향으로 출발
-        dfs(1, 0, m-1, n-1, cityMap, 'D');
-
-        answer = count;
+        answer = dpRight[m-1][n-1] + dpDown[m-1][n-1];
         System.out.println(answer);
         return answer;
-    }
-
-    private void dfs(int startRow, int startCol, int endRow, int endCol, int[][] cityMap, char direct) {
-        if (startRow == endRow && startCol == endCol) {
-//            System.out.println("종료 좌표 : [" + startRow + ", " + startCol + "]");
-            count = (count+1) % MOD;
-            return;
-        }
-
-        if (startRow >= 0 && startRow <= endRow && startCol >= 0 && startCol <= endCol) {
-            if (!visited[startRow][startCol]) {
-//                System.out.println("방문 좌표 : [" + startRow + ", " + startCol + "]");
-                visited[startRow][startCol] = true;
-                if (cityMap[startRow][startCol] == 2) {
-                    if (direct == 'R') dfs(startRow, startCol + 1, endRow, endCol, cityMap, 'R');
-                    else if (direct == 'D') dfs(startRow + 1, startCol, endRow, endCol, cityMap, 'D');
-                } else {
-                    dfs(startRow + 1, startCol, endRow, endCol, cityMap, direct);
-                    dfs(startRow, startCol + 1,endRow, endCol, cityMap, direct);
-                }
-                visited[startRow][startCol] = false;
-            }
-        }
     }
 }
