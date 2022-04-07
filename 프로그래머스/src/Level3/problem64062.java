@@ -4,70 +4,43 @@ import java.util.*;
 
 public class problem64062 {
 
+    static boolean check;
     public static void main(String[] args) {
         problem64062 problem64062 = new problem64062();
-        problem64062.solution(new int[]{2,2,3,3,2,1,4,2,5,1}, 3);
+        problem64062.solution(new int[]{2, 4, 5, 3, 2, 1, 4, 2, 5, 1}, 3);
     }
 
     public int solution(int[] stones, int k) {
-        HashMap<Long, List<Integer>> map = new HashMap<>();
-        List<Integer> tempList = new ArrayList<>();
-        int answer = Integer.MAX_VALUE;
-        long windowSum = 0;
-        long minNum = 0;
-        int minIndex = 0;
-        int listMax = 0;
-        int initListMax = 0;
-        int initIndex = 0;
-        // 0 ~ k 까지 합을 윈도우에 저장
-        for(int i=0;i<k;i++) {
-            windowSum += stones[i];
-            if (initListMax < stones[i]) {
-                initListMax = stones[i];
-                initIndex = i;
+        int answer = 0;
+        int start = 1;
+        int end = 200000000;
+        int middle = 0;
+
+        while(start <= end) {
+            middle = (start+end) / 2;
+            if (!isCheck(stones,k,middle)) {
+                end = middle-1;
+            } else {
+                start = middle + 1;
+                answer = Math.max(answer ,middle);
             }
         }
-        minNum = windowSum;
-        tempList.add(initIndex);
-        map.put(minNum, tempList);
-
-
-        // 윈도우 내에서 최소값을 가지는 값을 탐색
-        for(int i=1;i<=stones.length-k;i++) {
-            List<Integer> list = new ArrayList<>();
-            windowSum -= stones[i-1];
-            windowSum += stones[i+k-1];
-            if (minNum >= windowSum) {
-                minNum = windowSum;
-                minIndex = i;
-                if (map.getOrDefault(minNum, new ArrayList<>()).size() != 0) {
-                    list = map.get(minNum);
-                    list.add(minIndex);
-                    map.put(minNum, list);
-                } else {
-                    list.add(minIndex);
-                    map.put(minNum, list);
-                }
-            }
-        }
-
-        System.out.println("minNum : " + minNum);
-        System.out.println("minIndex : " + minIndex);
-
-        for(int i=0;i<map.get(minNum).size();i++) {
-            listMax = 0;
-            System.out.println(map.get(minNum));
-            for(int j=map.get(minNum).get(i);j<map.get(minNum).get(i)+k;j++) {
-                listMax = Math.max(listMax, stones[j]);
-            }
-            System.out.println("기준 합 : " + minNum);
-            System.out.println("listMax : " + listMax);
-            answer = Math.min(answer, listMax);
-        }
-
 
         System.out.println(answer);
-
         return answer;
+    }
+
+    private boolean isCheck(int[] stones, int k, int middle) {
+        int count = 0;
+        for(int i=0;i<stones.length;i++) {
+            if (stones[i] - middle < 0) {
+                count++;
+            } else {
+                count = 0;
+            }
+
+            if (count >= k) return false;
+        }
+        return true;
     }
 }
