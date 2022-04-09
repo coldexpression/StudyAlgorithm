@@ -12,31 +12,17 @@ public class problem12921 {
 
     public int solution(int n) {
         int answer = 0;
-        int check = 0;
-        List<Integer> store = new ArrayList<>();
-        store.add(2);
-        store.add(3);
-        store.add(5);
-        store.add(7);
+        boolean check;
         for(int i=2;i<=n;i++) {
-            check = 1;
-            answer = i == 2 || i == 3 || i == 5 || i == 7 ? answer + 1 : answer;
-            if (i != 2 && i != 3 && i != 5 && i != 7) {
-                for(int j=0;j<store.size();j++) {
-//                    System.out.println("i : " + i + " storeGET : " + store.get(j));
-                    if (i % store.get(j) == 0) {
-                        check = 0;
-                        break;
-                    }
-                    check = 1;
-                }
-                if (check == 1) {
-                    store.add(i);
-                    answer++;
+            check = false;
+            for(int j=2;j<=Math.sqrt(n);j++) {
+                if (i % j == 0) {
+                    check = true;
+                    break;
                 }
             }
+            answer = check ? answer : answer + 1;
         }
-//        System.out.println(answer);
         return answer;
     }
 }
