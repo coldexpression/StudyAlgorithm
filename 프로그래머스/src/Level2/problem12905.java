@@ -8,41 +8,36 @@ public class problem12905 {
 
     public int solution(int [][]board) {
         int answer = 1;
-        int count = 0;
-        int m = board.length;
-        int n = board[0].length;
-        int min = Math.min(m, n);
+        boolean check = false;
+        int row = board.length;
+        int col = board[0].length;
 
-        for(int i=0;i<m;i++) {
-            for(int j=0;j<n;j++) {
-                count = board[i][j] == 1 ? count + 1 : count;
-            }
-        }
-
-        count = Math.min((int)Math.sqrt(count), min);
-
-        for(int i=count;i>1;i--) {
-            for(int j=0;j<m;j++) {
-                for(int k=0;k<n;k++) {
-                    if (board[j][k] != 0 && ((j+i <= m) || (k+i <= n))) {
-                        if(checker(board, m, n, j, k, i)) return i*i;
-                    }
+        for(int i=0;i<row;i++) {
+            for (int j=0;j<col;j++) {
+                if (board[i][j] == 1) {
+                    check = true;
+                    break;
                 }
             }
         }
+
+        if (!check) return 0;
+
+        if (row == 1 || col == 1) return 1;
+
+        for(int i=1;i<row;i++) {
+            for(int j=1;j<col;j++) {
+                int left = board[i][j-1];
+                int up = board[i-1][j];
+                int cross = board[i-1][j-1];
+                board[i][j] = board[i][j] != 0 ? Math.min(Math.min(left, up), cross) + 1 : 0;
+                answer = Math.max(answer, board[i][j]);
+            }
+        }
+
+        answer *= answer;
+
         return answer;
     }
 
-    public boolean checker(int[][] board, int m, int n, int startRow, int startCol, int count) {
-        int num = 0;
-
-        for(int i=startRow;i<startRow+count;i++) {
-            for(int j=startCol;j<startCol+count;j++) {
-                if (i >= m || j >= n) break;
-                if (board[i][j] == 0) break;
-                num++;
-            }
-        }
-        return num == count*count;
-    }
 }
