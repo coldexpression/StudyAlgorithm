@@ -7,7 +7,9 @@ public class problem60063 {
     public static void main(String[] args) {
         problem60063 problem60063 = new problem60063();
 //        problem60063.solution(new int[][]{{0,0,0,1,1},{0,0,0,1,0},{0,1,0,1,1},{1,1,0,0,1},{0,0,0,0,0}});
-        problem60063.solution(new int[][]{{0,0,1,1,0,0},{0,0,0,0,0,0},{0,1,0,0,0,0},{0,1,0,1,1,0},{0,0,0,1,1,0},{0,0,0,1,1,0}});
+//        problem60063.solution(new int[][]{{0,0,1,1,0,0},{0,0,0,0,0,0},{0,1,0,0,0,0},{0,1,0,1,1,0},{0,0,0,1,1,0},{0,0,0,1,1,0}});
+//        problem60063.solution(new int[][]{{0, 0, 0, 0, 1, 0},{0, 0, 1, 1, 1, 0},{0, 1, 1, 1, 1, 0},{0, 1, 0, 0, 1, 0},{0, 0, 1, 0, 0, 0},{0, 0, 0, 0, 0, 0}});
+        problem60063.solution(new int[][]{{0, 0, 0, 0, 0, 0, 1},{1, 1, 1, 1, 0, 0, 1},{0, 0, 0, 0, 0, 0, 0},{0, 0, 1, 1, 1, 1, 0},{0, 1, 1, 1, 1, 1, 0},{0, 0, 0, 0, 0, 1, 1},{0, 0, 1, 0, 0, 0, 0}});
     }
 
     public int solution(int[][] board) {
@@ -40,86 +42,130 @@ public class problem60063 {
             int row2 = Integer.parseInt(second[0]);
             int col2 = Integer.parseInt(second[1]);
 
-            if ((row1 == maxRow -1 && col1 == maxCol -1) || (row2 == maxRow -1 && col2 == maxCol -1)) box.add(score);
+            if (set.contains(row1 + "," + col1 + "/" + row2 + "," + col2) || set.contains(row2 + "," + col2 + "/" + row1 + "," + col1))
+                continue;
 
+            if ((row1 == maxRow - 1 && col1 == maxCol - 1) || (row2 == maxRow - 1 && col2 == maxCol - 1)) {
+                box.add(score);
+            }
 
-            if (row1 >= 0 && row2 >= 0 && row1 < maxRow && row2 < maxCol && col1 >= 0 && col2 >= 0 && col1 < maxCol && col2 < maxCol) {
-                if ((!set.contains(row1 + "," + col1 + "/" + row2 + "," + col2) && !set.contains(row2 + "," + col2 + "/" + row1 + "," + col1)) && !(checkBoard[row1][col1] == -1 || checkBoard[row2][col2] == -1)) {
-                    checkBoard[row1][col1] = 1;
-                    checkBoard[row2][col2] = 1;
-                    set.add(row1+","+col1+"/"+row2+","+col2);
-                    set.add(row2+","+col2+"/"+row1+","+col1);
+            System.out.println(queue);
 
-                    System.out.println("방문 순서 : [" + row1 + ", " + col1 + "] [" + row2 + ", " + col2 + "]");
+            if (row1 >= 0 && row2 >= 0 && row1 < maxRow && row2 < maxRow && col1 >= 0 && col2 >= 0 && col1 < maxCol && col2 < maxCol) {
+                if (!(board[row1][col1] == -1 || board[row2][col2] == -1)) {
 
-                    if (row1 == row2) {
+                    set.add(row1 + "," + col1 + "/" + row2 + "," + col2);
+
+                    System.out.println("방문 순서 : [" + row1 + ", " + col1 + "] [" + row2 + ", " + col2 + "] : " + score);
+
+                    if (row1 == row2 && (col1 + 1 == col2 || col2 + 1 == col1)) {
                         // 수평인 경우
-                        if (row1 - 1 > -1 && board[row1 - 1][col1] == 0 && board[row1 - 1][col2] == 0) {
+                        if (row1 > 0 && row1 < maxRow - 1) {
                             // 왼쪽 축 기준으로, 왼쪽으로 90도 회전 == 오른쪽 축 기준으로, 오른쪽으로 90도 회전 == 위로 이동 가능
-                            queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + col1 + "/" + (score+1));
-                            queue.add((row2 - 1) + "," + col1 + "/" + row1 + "," + col1 + "/" + (score+1));
-                            queue.add(row2 + "," + col2 + "/" + (row1 - 1) + "," + col2+ "/" + (score+1));
-                            queue.add((row1 - 1) + "," + col2 + "/" + row2 + "," + col2+ "/" + (score+1));
-                            queue.add((row1 - 1) + "," + col1 + "/" + (row2 - 1) + "," + col2+ "/" + (score+1));
-                        }
-                        if (row1 + 1 < maxRow && board[row1 + 1][col1] == 0 && board[row1 + 1][col2] == 0) {
                             // 왼쪽 축 기준으로, 오른쪽으로 90도 회전 == 오른쪽 축 기준으로, 왼쪽으로 90도 회전 == 아래로 이동 가능
-                            queue.add(row1 + "," + col1 + "/" + (row2 + 1) + "," + col1+ "/" + (score+1));
-                            queue.add((row2 + 1) + "," + col1 + "/" + row1 + "," + col1+ "/" + (score+1));
-                            queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + col2+ "/" + (score+1));
-                            queue.add((row1 + 1) + "," + col2 + "/" + row2 + "," + col2+ "/" + (score+1));
-                            queue.add((row1 + 1) + "," + col1 + "/" + (row2 + 1) + "," + col2+ "/" + (score+1));
+                            if (board[row1 - 1][col1] == 0 && board[row1 - 1][col2] == 0) {
+                                queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + col1 + "/" + (score + 1));
+                                queue.add((row2 - 1) + "," + col1 + "/" + row1 + "," + col1 + "/" + (score + 1));
+                                queue.add(row2 + "," + col2 + "/" + (row1 - 1) + "," + col2 + "/" + (score + 1));
+                                queue.add((row1 - 1) + "," + col2 + "/" + row2 + "," + col2 + "/" + (score + 1));
+                                queue.add((row1 - 1) + "," + col1 + "/" + (row2 - 1) + "," + col2 + "/" + (score + 1));
+                                queue.add((row1 - 1) + "," + col2 + "/" + (row2 - 1) + "," + col1 + "/" + (score + 1));
+                            }
+                            if (board[row1 + 1][col1] == 0 && board[row1 + 1][col2] == 0) {
+                                queue.add(row1 + "," + col1 + "/" + (row2 + 1) + "," + col1 + "/" + (score + 1));
+                                queue.add((row2 + 1) + "," + col1 + "/" + row1 + "," + col1 + "/" + (score + 1));
+                                queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + col2 + "/" + (score + 1));
+                                queue.add((row1 + 1) + "," + col2 + "/" + row2 + "," + col2 + "/" + (score + 1));
+                                queue.add((row1 + 1) + "," + col1 + "/" + (row2 + 1) + "," + col2 + "/" + (score + 1));
+                                queue.add((row1 + 1) + "," + col2 + "/" + (row2 + 1) + "," + col1 + "/" + (score + 1));
+                            }
+                        } else if (row1 == 0 && board[row1 + 1][col1] == 0 && board[row2 + 1][col2] == 0) {
+                            queue.add(row1 + "," + col1 + "/" + (row2 + 1) + "," + col1 + "/" + (score + 1));
+                            queue.add((row2 + 1) + "," + col1 + "/" + row1 + "," + col1 + "/" + (score + 1));
+                            queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + col2 + "/" + (score + 1));
+                            queue.add((row1 + 1) + "," + col2 + "/" + row2 + "," + col2 + "/" + (score + 1));
+                            queue.add((row1 + 1) + "," + col1 + "/" + (row2 + 1) + "," + col2 + "/" + (score + 1));
+                            queue.add((row1 + 1) + "," + col2 + "/" + (row2 + 1) + "," + col1 + "/" + (score + 1));
+                        } else if (row1 == maxRow - 1 && board[row1 - 1][col1] == 0 && board[row2 - 1][col2] == 0) {
+                            queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + col1 + "/" + (score + 1));
+                            queue.add((row2 - 1) + "," + col1 + "/" + row1 + "," + col1 + "/" + (score + 1));
+                            queue.add(row2 + "," + col2 + "/" + (row1 - 1) + "," + col2 + "/" + (score + 1));
+                            queue.add((row1 - 1) + "," + col2 + "/" + row2 + "," + col2 + "/" + (score + 1));
+                            queue.add((row1 - 1) + "," + col1 + "/" + (row2 - 1) + "," + col2 + "/" + (score + 1));
+                            queue.add((row1 - 1) + "," + col2 + "/" + (row2 - 1) + "," + col1 + "/" + (score + 1));
                         }
 
-                        if (col1 - 1 > -1 && col2 - 1 > -1 && board[row1][col1 - 1] == 0 && board[row2][col2 -1] == 0) {
+                        if (col1 > 0 && col1 < maxCol - 1 && col2 > 0 && col2 < maxCol - 1) {
                             // 왼쪽 으로 이동 가능
-                            queue.add(row1 + "," + (col1 - 1) + "/" + row2 + "," + (col2 - 1)+ "/" + (score+1));
-                            queue.add(row1 + "," + (col2 - 1) + "/" + row2 + "," + (col1 - 1)+ "/" + (score+1));
-                        }
-                        if (col2 + 1 < maxCol && col1 + 1 < maxCol && board[row1][col1 + 1] == 0 && board[row2][col2 + 1] == 0) {
                             // 오른쪽 으로 이동 가능
-                            queue.add(row1 + "," + (col1 + 1) + "/" + row2 + "," + (col2 + 1)+ "/" + (score+1));
-                            queue.add(row1 + "," + (col2 + 1) + "/" + row2 + "," + (col1 + 1)+ "/" + (score+1));
+                            if (board[row1][col1 - 1] == 0 && board[row2][col2 - 1] == 0) {
+                                queue.add(row1 + "," + (col1 - 1) + "/" + row2 + "," + (col2 - 1) + "/" + (score + 1));
+                                queue.add(row1 + "," + (col2 - 1) + "/" + row2 + "," + (col1 - 1) + "/" + (score + 1));
+                            }
+                            if (board[row1][col1 + 1] == 0 && board[row2][col2 + 1] == 0) {
+                                queue.add(row1 + "," + (col1 + 1) + "/" + row2 + "," + (col2 + 1) + "/" + (score + 1));
+                                queue.add(row1 + "," + (col2 + 1) + "/" + row2 + "," + (col1 + 1) + "/" + (score + 1));
+                            }
+                        } else if (((col1 == 0 && col2 == col1 + 1) || (col2 == 0 && col1 == col2 + 1)) && board[row1][col2 + 1] == 0 && board[row2][col1 + 1] == 0) {
+                            queue.add(row1 + "," + (col1 + 1) + "/" + row2 + "," + (col2 + 1) + "/" + (score + 1));
+                            queue.add(row1 + "," + (col2 + 1) + "/" + row2 + "," + (col1 + 1) + "/" + (score + 1));
+                        } else if (((col1 == col2 - 1 && col2 == maxCol - 1) || (col2 == col1 - 1 && col1 == maxCol - 1)) && board[row1][col1 - 1] == 0 && board[row2][col2 - 1] == 0) {
+                            queue.add(row1 + "," + (col1 - 1) + "/" + row2 + "," + (col2 - 1) + "/" + (score + 1));
+                            queue.add(row1 + "," + (col2 - 1) + "/" + row2 + "," + (col1 - 1) + "/" + (score + 1));
                         }
 
-                    } else if (col1 == col2) {
+                    } else if (col1 == col2 && (row1 + 1 == row2 || row2 + 1 == row1)) {
                         // 수직인 경우
-                        if (col1 - 1 > -1 && board[row1][col1 - 1] == 0 && board[row2][col1 - 1] == 0) {
-                            // 아래쪽 축 기준으로, 왼쪽으로 90도 회전 == 위쪽 축 기준으로, 오른쪽으로 90도 회전 == 왼쪽 으로 이동 가능
-                            if (row1 + 1 < maxRow) {
-                                queue.add((row1 + 1) + "," + (col1 - 1) + "/" + row2 + "," + col2+ "/" + (score+1));
-                                queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + (col1 - 1) + "/" + (score+1));
+                        if (col1 > 0 && col1 < maxCol - 1) {
+                            if (board[row1][col1 - 1] == 0 && board[row2][col2 - 1] == 0) {
+                                queue.add((row1 + 1) + "," + (col1 - 1) + "/" + row2 + "," + col2 + "/" + (score + 1));
+                                queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + (col1 - 1) + "/" + (score + 1));
+                                queue.add((row2 - 1) + "," + (col2 - 1) + "/" + row1 + "," + col1 + "/" + (score + 1));
+                                queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + (col2 - 1) + "/" + (score + 1));
+                                queue.add(row1 + "," + (col1 - 1) + "/" + row2 + "," + (col2 - 1) + "/" + (score + 1));
+                                queue.add(row2 + "," + (col2 - 1) + "/" + row1 + "," + (col1 - 1) + "/" + (score + 1));
                             }
-                            if (row2 - 1 > -1) {
-                                queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + (col2 - 1)+ "/" + (score+1));
-                                queue.add((row2 - 1) + "," + (col2 - 1) + "/" + row1 + "," + col1+ "/" + (score+1));
+                            if (board[row1][col1 + 1] == 0 && board[row2][col2 + 1] == 0) {
+                                queue.add((row1 + 1) + "," + (col1 + 1) + "/" + row2 + "," + col2 + "/" + (score + 1));
+                                queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + (col1 + 1) + "/" + (score + 1));
+                                queue.add((row2 - 1) + "," + (col2 + 1) + "/" + row1 + "," + col1 + "/" + (score + 1));
+                                queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + (col2 + 1) + "/" + (score + 1));
+                                queue.add(row1 + "," + (col1 + 1) + "/" + row2 + "," + (col2 + 1) + "/" + (score + 1));
+                                queue.add(row2 + "," + (col2 + 1) + "/" + row1 + "," + (col1 + 1) + "/" + (score + 1));
                             }
-                            queue.add(row1 + "," + (col1 - 1) + "/" + row2 + "," + (col2 - 1)+ "/" + (score+1));
-                            queue.add(row1 + "," + (col2 - 1) + "/" + row2 + "," + (col1 - 1)+ "/" + (score+1));
+                        } else if (col1 == 0 && board[row1][col1 + 1] == 0 && board[row2][col2 + 1] == 0) {
+                            queue.add((row1 + 1) + "," + (col1 + 1) + "/" + row2 + "," + col2 + "/" + (score + 1));
+                            queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + (col1 + 1) + "/" + (score + 1));
+                            queue.add((row2 - 1) + "," + (col2 + 1) + "/" + row1 + "," + col1 + "/" + (score + 1));
+                            queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + (col2 + 1) + "/" + (score + 1));
+                            queue.add(row1 + "," + (col1 + 1) + "/" + row2 + "," + (col2 + 1) + "/" + (score + 1));
+                            queue.add(row2 + "," + (col2 + 1) + "/" + row1 + "," + (col1 + 1) + "/" + (score + 1));
+                        } else if (col1 == maxCol - 1 && board[row1][col1 - 1] == 0 && board[row2][col2 - 1] == 0) {
+                            queue.add((row1 + 1) + "," + (col1 - 1) + "/" + row2 + "," + col2 + "/" + (score + 1));
+                            queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + (col1 - 1) + "/" + (score + 1));
+                            queue.add((row2 - 1) + "," + (col2 - 1) + "/" + row1 + "," + col1 + "/" + (score + 1));
+                            queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + (col2 - 1) + "/" + (score + 1));
+                            queue.add(row1 + "," + (col1 - 1) + "/" + row2 + "," + (col2 - 1) + "/" + (score + 1));
+                            queue.add(row2 + "," + (col2 - 1) + "/" + row1 + "," + (col1 - 1) + "/" + (score + 1));
                         }
-                        if (col1 + 1 < maxCol && board[row1][col1 + 1] == 0 && board[row2][col1 + 1] == 0) {
-                            // 아래쪽 축 기준으로, 오른쪽으로 90도 회전 == 위쪽 축 기준으로, 왼쪽으로 90도 회전 == 오른쪽 으로 이동 가능
-                            if (row1 + 1 < maxRow) {
-                                queue.add((row1 + 1) + "," + (col1 + 1) + "/" + row2 + "," + col2+ "/" + (score+1));
-                                queue.add(row2 + "," + col2 + "/" + (row1 + 1) + "," + (col1 + 1)+ "/" + (score+1));
+
+                        if (row1 > 0 && row1 < maxRow - 1 && row2 > 0 && row2 < maxRow - 1) {
+                            if (board[row1 - 1][col1] == 0 && board[row2 - 1][col2] == 0) {
+                                queue.add((row1 - 1) + "," + col1 + "/" + (row2 - 1) + "," + col2 + "/" + (score + 1));
+                                queue.add((row2 - 1) + "," + col2 + "/" + (row1 - 1) + "," + col1 + "/" + (score + 1));
                             }
-                            if (row2 - 1 > -1) {
-                                queue.add(row1 + "," + col1 + "/" + (row2 - 1) + "," + (col2 + 1) + "/" + (score+1));
-                                queue.add((row2 - 1) + "," + (col2 + 1) + "/" + row1 + "," + col1 + "/" + (score+1));
+                            if (board[row1 + 1][col1] == 0 && board[row2 + 1][col2] == 0) {
+                                queue.add((row1 + 1) + "," + col1 + "/" + (row2 + 1) + "," + col2 + "/" + (score + 1));
+                                queue.add((row2 + 1) + "," + col2 + "/" + (row1 + 1) + "," + col1 + "/" + (score + 1));
                             }
-                            queue.add(row1 + "," + (col1 + 1) + "/" + row2 + "," + (col2 + 1)+ "/" + (score+1));
-                            queue.add(row2 + "," + (col1 + 1) + "/" + row1 + "," + (col2 + 1)+ "/" + (score+1));
+                        } else if (((row1 == 0 && row2 == row1 + 1) || (row2 == 0 && row1 == row2 + 1)) && board[row2 + 1][col2] == 0 && board[row1 + 1][col1] == 0) {
+                            queue.add((row1 + 1) + "," + col1 + "/" + (row2 + 1) + "," + col2 + "/" + (score + 1));
+                            queue.add((row2 + 1) + "," + col2 + "/" + (row1 + 1) + "," + col1 + "/" + (score + 1));
+                        } else if (((row1 == row2 - 1 && row2 == maxRow - 1) || (row2 == row1 - 1 && row1 == maxRow - 1)) && board[row1 - 1][col1] == 0 && board[row2 - 1][col2] == 0) {
+                            queue.add((row1 - 1) + "," + col1 + "/" + (row2 - 1) + "," + col2 + "/" + (score + 1));
+                            queue.add((row2 - 1) + "," + col2 + "/" + (row1 - 1) + "," + col1 + "/" + (score + 1));
                         }
-                        if (row1 - 1 > -1 && row2 - 1 > -1 && board[row1 - 1][col1] == 0 && board[row2 - 1][col2] == 0) {
-                            // 위로 이동 가능
-                            queue.add((row1 - 1) + "," + col1 + "/" + (row2 - 1) + "," + col2+ "/" + (score+1));
-                            queue.add((row2 - 1) + "," + col1 + "/" + (row1 - 1) + "," + col2+ "/" + (score+1));
-                        }
-                        if (row2 + 1 < maxRow && row1 + 1 < maxRow && board[row1 + 1][col1] == 0 && board[row2 + 1][col2] == 0) {
-                            // 아래로 이동 가능
-                            queue.add((row1 + 1) + "," + col1 + "/" + (row2 + 1) + "," + col2+ "/" + (score+1));
-                            queue.add((row2 + 1) + "," + col1 + "/" + (row1 + 1) + "," + col2+ "/" + (score+1));
-                        }
+
                     }
                 }
             }
