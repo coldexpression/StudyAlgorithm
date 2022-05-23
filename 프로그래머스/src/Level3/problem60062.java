@@ -17,25 +17,22 @@ public class problem60062 {
     }
 
     public int solution(int n, int[] weak, int[] dist) {
-        HashSet<Integer> weakSet = new HashSet<>();
+        List<Integer> weakSet = new ArrayList<>();
         PriorityQueue<Integer> useDist = new PriorityQueue<>(Collections.reverseOrder());
         answer = Integer.MAX_VALUE;
 
         for (int index : weak) weakSet.add(index);
         for (int index : dist) useDist.add(index);
 
-        weakSize = weak.length;
         find(weakSet, n, 0, useDist);
         answer = answer == Integer.MAX_VALUE ? -1 : answer;
         return answer;
     }
 
-    public void find(HashSet<Integer> weakSet, int n, int count, PriorityQueue<Integer> useDist) {
-        int right = -1;
+    public void find(List<Integer> weakSet, int n, int count, PriorityQueue<Integer> useDist) {
+        int right = 0;
         int circle = 0;
         int distance = 0;
-        HashSet<Integer> tempRightSet;
-        HashSet<Integer> tempWeakSet;
 
         if (answer == 1 || answer <= count) return;
 
@@ -47,7 +44,6 @@ public class problem60062 {
         for (int ele : weakSet) {
             if (useDist.isEmpty()) return;
             if (answer > count + 1) {
-                tempWeakSet = new HashSet<>(weakSet);
                 distance = useDist.poll();
                 right = ele - distance;
 
@@ -60,16 +56,14 @@ public class problem60062 {
                     answer = 1;
                     return;
                 }
-                tempWeakSet = checker(ele, right, n, tempWeakSet);
-                // tempWeakSet.removeAll(tempRightSet);
-                find(tempWeakSet, n, count + 1, useDist);
+                find(checker(ele, right, n, new ArrayList<>(weakSet)), n, count + 1, useDist);
                 useDist.add(distance);
-            } else return;
+            } else break;
         }
     }
 
-    public HashSet<Integer> checker(int start, int end, int size, HashSet<Integer> weakSet) {
-        HashSet<Integer> set = new HashSet<>();
+    public List<Integer> checker(int start, int end, int size, List<Integer> weakSet) {
+        List<Integer> set = new ArrayList<>();
 
         if (start > end) {
             for (int ele : weakSet) {
@@ -79,8 +73,7 @@ public class problem60062 {
                 }
             }
         }
-
-        if (start <= end) {
+        if (start < end) {
             for (int ele : weakSet) {
                 if ((start >= ele && ele >= 0) || (end <= ele && ele < size)) {
                 } else {
