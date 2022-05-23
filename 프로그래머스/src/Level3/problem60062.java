@@ -4,8 +4,8 @@ import java.util.*;
 
 public class problem60062 {
 
-    static PriorityQueue<Integer> answerQueue;
     static int weakSize;
+    static int answer;
 
     public static void main(String[] args) {
         problem60062 problem60062 = new problem60062();
@@ -17,105 +17,73 @@ public class problem60062 {
     }
 
     public int solution(int n, int[] weak, int[] dist) {
-        HashSet<Integer> rightSet = new HashSet<>();
         HashSet<Integer> weakSet = new HashSet<>();
-        int answer = 0;
-        HashSet<Integer> passSet = new HashSet<>();
         PriorityQueue<Integer> useDist = new PriorityQueue<>(Collections.reverseOrder());
-        answerQueue = new PriorityQueue<>();
+        answer = Integer.MAX_VALUE;
 
+        for (int index : weak) weakSet.add(index);
+        for (int index : dist) useDist.add(index);
 
-        for (int index : weak) {
-            weakSet.add(index);
-        }
-
-        for (int index : dist) {
-            useDist.add(index);
-        }
-
-        weakSize = weakSet.size();
-
-        find(passSet, rightSet, weakSet, dist, n, 0,useDist);
-
-        System.out.println(answerQueue);
-        System.out.println(answerQueue.peek());
-        answer = answerQueue.isEmpty() ? -1 : answerQueue.poll();
+        weakSize = weak.length;
+        find(weakSet, n, 0, useDist);
+        answer = answer == Integer.MAX_VALUE ? -1 : answer;
         return answer;
     }
 
-    public void find(HashSet<Integer> passSet, HashSet<Integer> rightSet, HashSet<Integer> weakSet, int[] dist, int n, int count, PriorityQueue<Integer> useDist) {
+    public void find(HashSet<Integer> weakSet, int n, int count, PriorityQueue<Integer> useDist) {
         int right = -1;
-        int rightCheckCount = 0;
-        boolean circle = false;
-        HashSet<Integer> tempSet = new HashSet<>(passSet);
-        HashSet<Integer> tempRightSet = new HashSet<>(rightSet);
+        int circle = 0;
+        int distance = 0;
+        HashSet<Integer> tempRightSet;
+        HashSet<Integer> tempWeakSet;
 
-        if (!answerQueue.isEmpty() && (answerQueue.peek() == 1 || answerQueue.peek() <= count)) return;
+        if (answer == 1 || answer <= count) return;
+
         if (weakSet.isEmpty()) {
-            System.out.println("취약 지점 비어 있을 때, count >> " + count);
-            answerQueue.add(count);
+            answer = Math.min(answer, count);
             return;
         }
 
-        System.out.println("가지고 있는 취약지점 : " + weakSet);
-
         for (int ele : weakSet) {
-            PriorityQueue<Integer> tempUseDist = new PriorityQueue<>(useDist);
-            HashSet<Integer> tempWeakSet = new HashSet<>(weakSet);
-            HashSet<Integer> tempRightWeakSet = new HashSet<>(weakSet);
-            System.out.println("뽑은 취약지점 : " + ele);
-            System.out.println("사용 가능한 거리 : " + tempUseDist);
-            System.out.println("통과한 셋 : " + passSet);
-            System.out.println("카운트 : " + count);
-
-            if (passSet.size() == weakSize) {
-                answerQueue.add(count);
-                System.out.println("투입한 인원 : " + count);
-                break;
-            }
-            if (tempUseDist.isEmpty()) return;
-
-            int distance = tempUseDist.poll();
-
-            if (!passSet.contains(ele)) {
+            if (useDist.isEmpty()) return;
+            if (answer > count + 1) {
+                tempWeakSet = new HashSet<>(weakSet);
+                distance = useDist.poll();
                 right = ele - distance;
-                System.out.println("수리 가능한 거리 : " + distance);
 
                 if (right < 0) {
                     right += n;
-                    circle = right <= ele;
+                    circle = right <= ele ? 1 : 0;
                 }
-                tempRightSet = checker(passSet, ele, right, n, tempWeakSet);
-                for (int num : tempRightSet) {
-                    tempRightWeakSet.remove(num);
-                }
-                rightCheckCount = circle ? weakSize : tempRightSet.size();
 
-                System.out.println("오른쪽 값 : " + right);
-                System.out.println("오른쪽 포함 개수 : " + rightCheckCount);
-                System.out.println("오른쪽 수리 지점 : " + tempRightSet);
-                System.out.println("오른쪽 잔여 취약 지점 : " + tempRightWeakSet);
-
-                if (rightCheckCount == weakSize) {
-                    System.out.println("한 친구가 다 휩씀");
-                    answerQueue.add(1);
+                if (circle == 1) {
+                    answer = 1;
                     return;
                 }
-                passSet.addAll(tempRightSet);
-                find(passSet, tempRightSet, tempRightWeakSet, dist, n, count + 1, tempUseDist);
-                passSet = (HashSet<Integer>) tempSet.clone();
-            }
+                tempWeakSet = checker(ele, right, n, tempWeakSet);
+                // tempWeakSet.removeAll(tempRightSet);
+                find(tempWeakSet, n, count + 1, useDist);
+                useDist.add(distance);
+            } else return;
         }
     }
 
-    public HashSet<Integer> checker(HashSet<Integer> passSet, int start, int end, int size, HashSet<Integer> weakSet) {
+    public HashSet<Integer> checker(int start, int end, int size, HashSet<Integer> weakSet) {
         HashSet<Integer> set = new HashSet<>();
 
-        for (int ele : weakSet) {
-            if (!passSet.contains(ele)) {
-                if (start > end && (start >= ele && ele >= end)) {
+        if (start > end) {
+            for (int ele : weakSet) {
+                if ((start >= ele && ele >= end)) {
+                } else {
                     set.add(ele);
-                } else if (start <= end && ((start >= ele && ele >= 0) || (end <= ele && ele < size))) {
+                }
+            }
+        }
+
+        if (start <= end) {
+            for (int ele : weakSet) {
+                if ((start >= ele && ele >= 0) || (end <= ele && ele < size)) {
+                } else {
                     set.add(ele);
                 }
             }
