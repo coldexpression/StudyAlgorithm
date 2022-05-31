@@ -28,15 +28,18 @@ public class problem87694 {
             maxY = Math.max(Math.max(pos[1], maxY), pos[3]);
         }
 
+        maxX *= 2;
+        maxY *= 2;
+
         map = new int[maxY+1][maxX+1];
         boolean[][] visited = new boolean[maxY+1][maxX+1];
         boolean[][] available = new boolean[maxY+1][maxX+1];
 
         for (int[] pos : rectangle) {
-            int startX = pos[0];
-            int startY = pos[1];
-            int endX = pos[2];
-            int endY = pos[3];
+            int startX = pos[0]*2;
+            int startY = pos[1]*2;
+            int endX = pos[2]*2;
+            int endY = pos[3]*2;
 
             for(int i=startY+1;i<=endY-1;i++) {
                 for(int j=startX+1;j<=endX-1;j++) {
@@ -57,10 +60,10 @@ public class problem87694 {
         }
 
         for (int[] pos : rectangle) {
-            int startX = pos[0];
-            int startY = pos[1];
-            int endX = pos[2];
-            int endY = pos[3];
+            int startX = pos[0]*2;
+            int startY = pos[1]*2;
+            int endX = pos[2]*2;
+            int endY = pos[3]*2;
 
             for(int i=startY+1;i<=endY-1;i++) {
                 for(int j=startX+1;j<=endX-1;j++) {
@@ -69,36 +72,16 @@ public class problem87694 {
             }
         }
 
-        for(int i=0;i< rectangle.length;i++) {
-            int pivotRectStartX = rectangle[i][0];
-            int pivotRectStartY = rectangle[i][1];
-            int pivotRectEndX = rectangle[i][2];
-            int pivotRectEndY = rectangle[i][3];
-            for (int j = 0; j < rectangle.length; j++) {
-                if (i != j) {
-                    int targetRectStartX = rectangle[j][0];
-                    int targetRectStartY = rectangle[j][1];
-                    int targetRectEndX = rectangle[j][2];
-                    int targetRectEndY = rectangle[j][3];
-                    for(int k=pivotRectStartY;k<=pivotRectEndY;k++) {
-                        for(int l=pivotRectStartX;l<=pivotRectEndX;l++) {
-                            if (targetRectStartX <= l && targetRectEndX >= l && targetRectStartY <= k && targetRectEndY >= k) set.add(l+","+k);
-                        }
-                    }
-                }
-            }
-        }
-
         System.out.println(set);
 
-        queue.add(new int[]{characterY, characterX, 0});
-        visited[characterY][characterX] = true;
+        queue.add(new int[]{characterY*2, characterX*2, 0});
+        visited[characterY*2][characterX*2] = true;
 
         while(!queue.isEmpty()) {
             int[] pickPos = queue.poll();
             System.out.println("현재 좌표 : ["+pickPos[1] + ", " + pickPos[0] + "] => " + (pickPos[2]));
-            if (pickPos[0] == itemY && pickPos[1] == itemX) {
-                answer = pickPos[2];
+            if (pickPos[0] == itemY*2 && pickPos[1] == itemX*2) {
+                answer = pickPos[2]/2;
                 break;
             }
 
@@ -133,10 +116,10 @@ public class problem87694 {
     public boolean check(int targetStartX, int targetStartY, int targetEndX, int targetEndY, int[][] rectangle) {
 
         for (int[] pos : rectangle) {
-            int startX = pos[0];
-            int endX = pos[2];
-            int startY = pos[1];
-            int endY = pos[3];
+            int startX = pos[0]*2;
+            int endX = pos[2]*2;
+            int startY = pos[1]*2;
+            int endY = pos[3]*2;
             System.out.println("비교 사각형 : [" + startX + ", " + startY + "] [" + endX + ", " + endY + "]");
 
             if (targetStartX >= startX && targetStartX <= endX && targetEndX >= startX && targetEndX <= endX && targetStartY >= startY && targetStartY <= endY && targetEndY >= startY && targetEndY <= endY) {
