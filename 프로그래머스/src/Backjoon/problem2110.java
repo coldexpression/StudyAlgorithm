@@ -6,50 +6,40 @@ public class problem2110 {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
+        int answer = 1;
         int n = sc.nextInt();
         int c = sc.nextInt();
+        int count = 1;
 
         int[] home = new int[n];
         for (int i = 0; i < n; i++) home[i] = sc.nextInt();
         Arrays.sort(home);
-        int start = 0;
-        int end = n - 1;
-        int minDst = 0;
-        int answer = home[end] - home[start];
-        int minDstIndex = -1;
-        c = c - 2;
 
-            while (true) {
-                minDst = home[end] - home[start];
-                if (c == 0) break;
-                System.out.println("시작 인덱스 : " + start);
-                System.out.println("종료 인덱스 : " + end);
-                System.out.println("중간 인덱스 : " + minDstIndex);
+        int start = 1;
+        int end = home[n-1];
+        int middle = 0;
 
-                for (int i = start; i <= end; i++) {
-                    int dst = Math.abs((home[start] + home[end]) / 2 - home[i]);
-                    if (minDst >= dst) {
-                        minDst = dst;
-                        minDstIndex = i;
-                    } else {
-                        break;
-                    }
-                }
+        while(true) {
+            if (start == end || start + 1 == end) break;
+            int pivot = home[0];
+            count = 1;
+            middle = (start+end) / 2;
 
-
-                if (minDstIndex != -1) {
-                    if (home[minDstIndex] - home[start] >= home[end] - home[minDstIndex]) {
-                        answer = home[end] - home[minDstIndex];
-                        end = minDstIndex;
-                    } else {
-                        answer = home[minDstIndex] - home[start];
-                        start = minDstIndex;
-                    }
-                    c--;
-
+            for(int i=0;i<n;i++) {
+                if (pivot + middle <= home[i]) {
+                    pivot = home[i];
+                    count++;
                 }
             }
+
+            if (count < c) {
+                end = middle;
+            } else {
+                answer = Math.max(middle, answer);
+                start = middle;
+            }
+        }
+
         System.out.println(answer);
     }
 }
