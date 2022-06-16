@@ -1,41 +1,48 @@
 package Backjoon;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.*;
 
 public class problem1655 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
 
         int n = sc.nextInt();
+        int answer = 0;
 
         PriorityQueue<Integer> left = new PriorityQueue<>(Collections.reverseOrder());
         PriorityQueue<Integer> right = new PriorityQueue<>();
+        BufferedWriter bf = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int[] ele = new int[n];
-
-        for(int i=0;i<n;i++) ele[i] = sc.nextInt();
-
-        int middle = ele[0];
-        System.out.println(middle);
-        left.add(middle);
-
-        for(int i=1;i<n;i++) {
-            int pick = ele[i];
-            left.add(pick);
-
-            if (Math.abs(left.size() - right.size()) >= 2) right.add(left.poll());
-            else if (!left.isEmpty() && !right.isEmpty() && left.peek() > right.peek()) {
-                right.add(left.poll());
-                left.add(right.poll());
+        for(int i=0;i<n;i++) {
+            int pick = sc.nextInt();
+            if (i == 0) {
+                left.add(pick);
+                answer = left.peek();
             }
-
-            if ((i+1) % 2 == 0) middle = left.peek();
             else {
-                if (left.size() > right.size()) middle = left.peek();
-                else middle = right.peek();
+                if (left.size() > right.size()) right.add(pick);
+                else if (left.size() < right.size()) left.add(pick);
+                else {
+                    if (left.peek() > pick) left.add(pick);
+                    else right.add(pick);
+                }
+
+                while (true) {
+                    if (left.peek() <= right.peek()) break;
+                    right.add(left.poll());
+                    left.add(right.poll());
+                }
+
+                if (left.size() == right.size()) answer = left.peek();
+                else if (left.size() > right.size()) answer = left.peek();
+                else if (left.size() < right.size()) answer = right.peek();
             }
-            System.out.println(middle);
+            bf.write(answer+"\n");
         }
+        bf.flush();
     }
 }
