@@ -7,41 +7,38 @@ public class problem12904 {
         problem12904 problem12904 = new problem12904();
 //        problem12904.solution("abcdcba");
 //        problem12904.solution("abbb");
-        problem12904.solution("aabccbab");
+        problem12904.solution("ecdabbcadc");
     }
 
     public int solution(String s) {
-        int answer = 1;
+        int answer = 0;
         int left = 1;
         int right = s.length()-2;
         int length = 1;
-        int index = 0;
 
         if (reverseString(s)) return s.length();
 
-        for(int i=1;i<s.length();i++) {
-            char pivot = s.charAt(i);
-            int endIndex = Math.min(left, right);
-            length = 0;
-            String leftWord = String.valueOf(pivot);
-            String rightWord = String.valueOf(pivot);
-            String word = String.valueOf(pivot);
-            for(int j=1;j<=endIndex;j++) {
-                if (answer == s.length()) break;
-                leftWord = s.charAt(i-j) + word;
-                rightWord = word + s.charAt(i+j);
-                word = s.charAt(i-j) + word + s.charAt(i+j);
-                if (reverseString(leftWord)) {
-                    length = leftWord.length();
-                } else if (reverseString(rightWord)) {
-                    length = rightWord.length();
-                } else if (reverseString(word)) {
-                    length = word.length();
+        for(int i=0;i<s.length();i++) {
+            int size = s.length() - i;
+            System.out.println("윈도우 크기 : " + size);
+            if (answer != 0) break;
+            for(int j=0;j+(size-1)<s.length();j++) {
+                int index = 0;
+                length = 0;
+                System.out.println("시작 위치/단어 : [" + j + "] [" + s.charAt(j) + "]");
+                for(int k=j;k<=j+(size-1)/2;k++) {
+                    int end = j+(size-1) - index;
+                    System.out.println("앞 단어 [" + s.charAt(k) + "] 뒤 단어 [" + s.charAt(end)+"]");
+                    if (s.charAt(k) == s.charAt(end)) {
+                        length = k == end ? length + 1 : length + 2;
+                    } else {
+                        length = 0;
+                        break;
+                    }
+                    index++;
                 }
+                answer = Math.max(answer, length);
             }
-            left++;
-            right--;
-            answer = Math.max(answer ,length);
         }
         System.out.println(answer);
         return answer;
