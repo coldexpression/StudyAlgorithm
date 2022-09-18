@@ -6,103 +6,136 @@ public class problem81303 {
 
     public static void main(String[] args) {
         problem81303 problem81303 = new problem81303();
-//        problem81303.solution(8, 2, new String[]{"D 2","C","U 3","C","D 4","C","U 2","Z","Z"});
-        problem81303.solution(8, 2, new String[]{"D 2","C","U 3","C","D 4","C","U 2","Z","Z","U 1","C"});
+        problem81303.solution(8, 2, new String[]{"D 2","C","U 3","C","D 4","C","U 2","Z","Z"});
+//        problem81303.solution(8, 2, new String[]{"D 2","C","U 3","C","D 4","C","U 2","Z","Z","U 1","C"});
     }
 
-    public class User {
-        private int name;
-        private int index;
-
-        public User(int name, int index) {
-            this.name = name;
-            this.index = index;
-        }
-    }
+//    public class User {
+//        private int name;
+//        private int index;
+//
+//        public User(int name, int index) {
+//            this.name = name;
+//            this.index = index;
+//        }
+//    }
 
     public String solution(int n, int k, String[] cmd) {
-        char[] map = new char[n];
-        Stack<User> junk = new Stack<>();
+        Stack<Integer> junk = new Stack<>();
+        StringBuilder sb = new StringBuilder();
         String answer = "";
-        int up = Math.max(k - 1, 0);
-        int down = Math.min(k + 1, k);
-        LinkedList<Integer> list = new LinkedList<>();
-        for(int i=0;i<n;i++) list.add(i);
+        for (String word : cmd) {
+            String[] command = word.split(" ");
+            String key = command[0];
 
-        Arrays.fill(map, 'O');
-
-        for (String command : cmd) {
-            String key = command.split(" ")[0];
-            System.out.println("현재 인덱스 : " + k);
-            System.out.println("현재 리스트 : " + list);
-            System.out.println("쓰레기통 : " + junk);
             if (key.equals("U") || key.equals("D")) {
-                int dst = Integer.parseInt(command.split(" ")[1]);
-                System.out.println("["+key+"] : " + dst);
+                int dst = Integer.parseInt(command[1]);
                 k = key.equals("U") ? k - dst : k + dst;
-//                k += findIndex(key, k, dst, junk);
-                if (k<0) k = 0;
-                else if (k>=n-1) k = n-1;
             } else if (key.equals("C")) {
-                junk.add(new User(list.get(k), k));
-                list.remove(k);
-                k = Math.min(k, list.size() - 1);
+                junk.add(k);
+                k = k == n - 1 ? n - 2 : k;
+                n--;
             } else if (key.equals("Z")) {
-                User user = junk.pop();
-                list.add(user.index, user.name);
-                k = k > user.index ? k + 1 : k;
+                int pick = junk.pop();
+                k = k > pick ? k + 1 : k;
+                n++;
             }
         }
 
+        for(int i=0;i<n;i++) sb.append('O');
+
+
         while(!junk.isEmpty()) {
-            User user = junk.pop();
-            System.out.println("index >> " + user.name);
-            map[user.name] = 'X';
+            int ele = junk.pop();
+            sb.insert(ele, 'X');
         }
-
-
-        for (char c : map) {
-            answer += c;
-        }
-        System.out.println(answer);
+        answer = sb.toString();
         return answer;
     }
 
-    public int findUp(Stack<Integer> j, int k) {
-        while(true) {
-            k--;
-            if (!j.contains(k) || k < 0) break;
-        }
-        return Math.max(k, 0);
-    }
-
-    public int findDown(Stack<Integer> j, int k, int n) {
-        while(true) {
-            k++;
-            if (!j.contains(k) || k > n - 1) break;
-        }
-        return Math.min(k, n - 1);
-    }
-
-
-    public int findIndex(String key, int k, int dst, Stack<Integer> j) {
-        Stack<Integer> junk = (Stack<Integer>) j.clone();
-        int upIdx = 0;
-        int downIdx = 0;
-        dst = key.equals("U") ? dst : dst*(-1);
-        dst += k;
-        System.out.println("현재 위치 : " + k);
-        System.out.println("쓰레기통 : " + j);
-        while(!junk.isEmpty()) {
-            int ele = junk.pop();
-            if (key.equals("U") && (ele >= k && ele <= dst)) {
-                upIdx++;
-            } else if (key.equals("D") && (ele>= dst && ele <= k)) {
-                downIdx++;
-            }
-        }
-        return key.equals("U") ? upIdx*(-1) : downIdx;
-    }
+//    public String solution(int n, int k, String[] cmd) {
+//        char[] map = new char[n];
+//        Stack<User> junk = new Stack<>();
+//        String answer = "";
+//        int up = Math.max(k - 1, 0);
+//        int down = Math.min(k + 1, k);
+//        LinkedList<Integer> list = new LinkedList<>();
+//        for(int i=0;i<n;i++) list.add(i);
+//
+//        Arrays.fill(map, 'O');
+//
+//        for (String command : cmd) {
+//            String key = command.split(" ")[0];
+//            System.out.println("현재 인덱스 : " + k);
+//            System.out.println("현재 리스트 : " + list);
+//            System.out.println("쓰레기통 : " + junk);
+//            if (key.equals("U") || key.equals("D")) {
+//                int dst = Integer.parseInt(command.split(" ")[1]);
+//                System.out.println("["+key+"] : " + dst);
+//                k = key.equals("U") ? k - dst : k + dst;
+////                k += findIndex(key, k, dst, junk);
+//                if (k<0) k = 0;
+//                else if (k>=n-1) k = n-1;
+//            } else if (key.equals("C")) {
+//                junk.add(new User(list.get(k), k));
+//                list.remove(k);
+//                k = Math.min(k, list.size() - 1);
+//            } else if (key.equals("Z")) {
+//                User user = junk.pop();
+//                list.add(user.index, user.name);
+//                k = k > user.index ? k + 1 : k;
+//            }
+//        }
+//
+//        while(!junk.isEmpty()) {
+//            User user = junk.pop();
+//            System.out.println("index >> " + user.name);
+//            map[user.name] = 'X';
+//        }
+//
+//
+//        for (char c : map) {
+//            answer += c;
+//        }
+//        System.out.println(answer);
+//        return answer;
+//    }
+//
+//    public int findUp(Stack<Integer> j, int k) {
+//        while(true) {
+//            k--;
+//            if (!j.contains(k) || k < 0) break;
+//        }
+//        return Math.max(k, 0);
+//    }
+//
+//    public int findDown(Stack<Integer> j, int k, int n) {
+//        while(true) {
+//            k++;
+//            if (!j.contains(k) || k > n - 1) break;
+//        }
+//        return Math.min(k, n - 1);
+//    }
+//
+//
+//    public int findIndex(String key, int k, int dst, Stack<Integer> j) {
+//        Stack<Integer> junk = (Stack<Integer>) j.clone();
+//        int upIdx = 0;
+//        int downIdx = 0;
+//        dst = key.equals("U") ? dst : dst*(-1);
+//        dst += k;
+//        System.out.println("현재 위치 : " + k);
+//        System.out.println("쓰레기통 : " + j);
+//        while(!junk.isEmpty()) {
+//            int ele = junk.pop();
+//            if (key.equals("U") && (ele >= k && ele <= dst)) {
+//                upIdx++;
+//            } else if (key.equals("D") && (ele>= dst && ele <= k)) {
+//                downIdx++;
+//            }
+//        }
+//        return key.equals("U") ? upIdx*(-1) : downIdx;
+//    }
 
 //    public String solution(int n, int k, String[] cmd) {
 //        String answer = "";
