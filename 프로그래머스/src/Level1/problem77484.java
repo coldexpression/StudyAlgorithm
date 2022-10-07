@@ -1,5 +1,10 @@
 package Level1;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.PriorityQueue;
+
 public class problem77484 {
     public static void main(String[] args) {
 
@@ -11,26 +16,64 @@ public class problem77484 {
     }
 
     public int[] solution(int[] lottos, int[] win_nums) {
+        PriorityQueue<Integer> lottosQueue = new PriorityQueue<>();
+        PriorityQueue<Integer> win_numsQueue = new PriorityQueue<>();
         int[] answer = new int[2];
-        int count = 0;
-        int zero_count = 0;
-        int worst = 0;
-        int best = 0;
-        for (int number : lottos) {
-            if (number != 0) {
-                for (int lotto_num : win_nums) {
-                    if (number == lotto_num) {
-                        count++;
-                    }
-                }
-            } else if (number == 0) {
-                zero_count++;
-            }
+        int zeroCount = 0;
+        int totalCount = 0;
+        int max = 0;
+        int min = 0;
+
+        for (int i : lottos) {
+            lottosQueue.add(i);
         }
-        best = count == 0 && zero_count == 0 ? 6 : 7 - (count + zero_count);
-        worst = count <= 1 ?  6 : 7-count;
-        answer[0] = best;
-        answer[1] = worst;
+
+        for (int win_num : win_nums) {
+            win_numsQueue.add(win_num);
+        }
+
+        while(true) {
+            if (lottosQueue.peek() != 0) break;
+            lottosQueue.poll();
+            zeroCount++;
+        }
+
+        while(true) {
+            if (win_numsQueue.isEmpty() || lottosQueue.isEmpty()) break;
+            int winNum = win_numsQueue.poll();
+            int number = lottosQueue.poll();
+            totalCount = winNum == number ? totalCount + 1 : totalCount;
+        }
+        max = Math.min(totalCount + zeroCount, 6);
+        min = totalCount - zeroCount < 2 ? 1 : totalCount - zeroCount;
+
+
+        answer[0] = 7 - max;
+        answer[1] = 7 - min;
         return answer;
     }
+
+//    public int[] solution(int[] lottos, int[] win_nums) {
+//        int[] answer = new int[2];
+//        int count = 0;
+//        int zero_count = 0;
+//        int worst = 0;
+//        int best = 0;
+//        for (int number : lottos) {
+//            if (number != 0) {
+//                for (int lotto_num : win_nums) {
+//                    if (number == lotto_num) {
+//                        count++;
+//                    }
+//                }
+//            } else if (number == 0) {
+//                zero_count++;
+//            }
+//        }
+//        best = count == 0 && zero_count == 0 ? 6 : 7 - (count + zero_count);
+//        worst = count <= 1 ?  6 : 7-count;
+//        answer[0] = best;
+//        answer[1] = worst;
+//        return answer;
+//    }
 }
