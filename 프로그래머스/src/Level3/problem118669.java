@@ -7,41 +7,11 @@ public class problem118669 {
     public class Node {
         private int index;
 
-        private int currentSummit;
-
-        private boolean[] visited;
-
         private int time;
 
-        private boolean passSummits;
-
-        public Node(int index, int currentSummit, boolean[] visited, int time, boolean passSummits) {
+        public Node(int index, int time) {
             this.index = index;
-            this.currentSummit = currentSummit;
-            this.visited = visited;
             this.time = time;
-            this.passSummits = passSummits;
-        }
-
-
-        public boolean[] getVisited() {
-            return visited;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public int getCurrentSummit() {
-            return currentSummit;
-        }
-
-        public int getTime() {
-            return time;
-        }
-
-        public boolean isPassSummits() {
-            return passSummits;
         }
     }
 
@@ -52,127 +22,88 @@ public class problem118669 {
 
     public int[] solution(int n, int[][] paths, int[] gates, int[] summits) {
         int[] answer = new int[2];
-        int min = Integer.MAX_VALUE;
-        HashMap<String, Integer> dstMap = new HashMap<>();
-        HashMap<Integer, List<Integer>> edgeMap = new HashMap<>();
-        Queue<Node> queue = new LinkedList<>();
+        int[] score = new int[n+1];
         HashSet<Integer> summitsSet = new HashSet<>();
-        HashSet<Integer> gatesSet = new HashSet<>();
+
+        answer[0] = Integer.MAX_VALUE;
+        answer[1] = Integer.MAX_VALUE;
+
+        List<List<Node>> graph = new ArrayList<>();
 
         for (int summit : summits) {
             summitsSet.add(summit);
         }
 
+        for(int i=0;i<=n;i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int[] path : paths) {
+            int start = path[0];
+            int end = path[1];
+            int time = path[2];
+
+            graph.get(start).add(new Node(end, time));
+            graph.get(end).add(new Node(start, time));
+        }
+
+
         for (int gate : gates) {
-            gatesSet.add(gate);
-        }
+            PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
+                @Override
+                public int compare(Node o1, Node o2) {
+                    if (o1.time == o2.time) {
+                        return o1.index - o2.index;
+                    }
+                    return o1.time - o2.time;
+                }
+            });
+            boolean[] visited = new boolean[n+1];
 
+            for (int i : gates) {
+                visited[i] = true;
+            }
 
-        for (int[] path : paths) {
-            StringBuilder sb = new StringBuilder();
-            List<Integer> list = edgeMap.getOrDefault(path[0], new ArrayList<>());
-            list.add(path[1]);
-            edgeMap.put(path[0], list);
+            queue.add(new Node(gate, 0));
 
-            sb.append(path[0]);
-            sb.append("/");
-            sb.append(path[1]);
-            dstMap.put(sb.toString(), path[2]);
-        }
-
-        for (int[] path : paths) {
-            List<Integer> list = edgeMap.getOrDefault(path[1], new ArrayList<>());
-            list.add(path[0]);
-            edgeMap.put(path[1], list);
-        }
-
-        answer[0] = Integer.MAX_VALUE;
-
-        for (int i = 0; i < gates.length; i++) {
-            boolean[] visited = new boolean[n + 1];
-            int gate = gates[i];
-            List<Integer> list = edgeMap.get(gate);
-
-            int[] next = new int[list.size()];
-            for (int j = 0; j < list.size(); j++) next[j] = list.get(j);
-
-            visited[gate] = true;
-            queue.add(new Node(gate, 0, visited, 0, false));
-
-            while (!queue.isEmpty()) {
+            while(!queue.isEmpty()) {
                 Node node = queue.poll();
-                int index = node.getIndex();
-                boolean[] v = node.getVisited();
-                boolean passSummits = node.isPassSummits();
+                System.out.println("**************************");
+                System.out.println("현재 위치 : " + node.index);
+                System.out.println("**************************");
+                List<Node> list = graph.get(node.index);
 
-                if (!passSummits) {
-                    List<Integer> edges = edgeMap.get(index);
-                    for (int j = 0; j < edges.size(); j++) {
-                        int time = node.getTime();
-                        int pick = edges.get(j);
-                        if (!v[pick] && !gatesSet.contains(pick)) {
-                            StringBuilder sb2 = new StringBuilder();
+                for (Node node2 : list) {
+                    if (visited[node2.index]) continue;
 
-                            sb2.append(index);
-                            sb2.append("/");
-                            sb2.append(pick);
-
-                            int d1 = dstMap.getOrDefault(sb2.toString(), -1);
-                            int d2 = dstMap.getOrDefault(sb2.reverse().toString(), -1);
-
-                            int newDst = Math.max(d1, d2);
-
-                            if (summitsSet.contains(pick)) {
-                                queue.add(new Node(pick, pick, null, Math.max(time, newDst), true));
-                            } else {
-                                boolean[] vst = node.getVisited().clone();
-                                vst[index] = true;
-                                queue.add(new Node(pick, 0, vst, Math.max(time, newDst), false));
-                            }
+                    if (summitsSet.contains(node2.index)) {
+                        score[node2.index] = Math.max(node2.time, score[node.index]);
+                    } else {
+                        if (!visited[node2.index] && answer[1] >= node2.time && answer[1] >= score[node.index]) {
+                            score[node2.index] = Math.max(node2.time, score[node.index]);
+                            System.out.println("연결된 위치 : " + node2.index);
+                            System.out.println("여기까지 최대 시간 : " + score[node2.index]);
+                            queue.add(new Node(node2.index, 0));
+                            visited[node2.index] = true;
                         }
                     }
-                } else {
-//                    if (index == gate) {
-                    if (min >= node.getTime()) {
-                        if (min == node.getTime() && answer[0] > node.currentSummit) {
-                            answer[0] = node.getCurrentSummit();
-                        } else {
-                            min = node.getTime();
-                            answer[0] = node.getCurrentSummit();
-                            answer[1] = min;
-                        }
+                }
+            }
+            for (int summit : summits) {
+                int time = score[summit];
+                System.out.println("[봉우리: " + summit + "] => " + time);
+                if (time > 0) {
+                    if (answer[1] == time) {
+                        if (answer[0] > summit) answer[0] = summit;
+                    } else if (answer[1] > time) {
+                        answer[1] = time;
+                        answer[0] = summit;
                     }
-//                    } else {
-//                        List<Integer> edges = edgeMap.get(index);
-//                        for (int j = 0; j < edges.size(); j++) {
-//                            PriorityQueue<Integer> time = new PriorityQueue<>(node.getTime());
-//                            int pick = edges.get(j);
-//                            if (!v[pick] && (gate == pick || !gatesSet.contains(pick)) && !summitsSet.contains(pick)) {
-//                                StringBuilder sb2 = new StringBuilder();
-//
-//                                sb2.append(index);
-//                                sb2.append("/");
-//                                sb2.append(pick);
-//
-//                                int d1 = dstMap.getOrDefault(sb2.toString(), -1);
-//                                int d2 = dstMap.getOrDefault(sb2.reverse().toString(), -1);
-//
-//                                int newDst = Math.max(d1, d2);
-//                                time.add(newDst);
-//
-//                                boolean[] vst = node.getVisited().clone();
-//                                int currentSummit = node.getCurrentSummit();
-//
-//                                vst[index] = true;
-//                                queue.add(new Node(pick, currentSummit, vst, time, passSummits));
-//                            }
-//                        }
-//                    }
                 }
             }
         }
-//        answer = resultQueue.poll();
-        System.out.println(answer[0]+" , " + answer[1]);
+
+        System.out.println(answer[0]+", "+answer[1]);
         return answer;
     }
 }
