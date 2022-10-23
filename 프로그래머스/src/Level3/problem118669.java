@@ -22,8 +22,10 @@ public class problem118669 {
 
     public int[] solution(int n, int[][] paths, int[] gates, int[] summits) {
         int[] answer = new int[2];
-        int[] score = new int[n+1];
+        int[] score = new int[n + 1];
         HashSet<Integer> summitsSet = new HashSet<>();
+
+        Arrays.fill(score, Integer.MAX_VALUE);
 
         answer[0] = Integer.MAX_VALUE;
         answer[1] = Integer.MAX_VALUE;
@@ -34,7 +36,7 @@ public class problem118669 {
             summitsSet.add(summit);
         }
 
-        for(int i=0;i<=n;i++) {
+        for (int i = 0; i <= n; i++) {
             graph.add(new ArrayList<>());
         }
 
@@ -43,67 +45,78 @@ public class problem118669 {
             int end = path[1];
             int time = path[2];
 
-            graph.get(start).add(new Node(end, time));
-            graph.get(end).add(new Node(start, time));
+            if (gateCheck(start, gates) || summitCheck(end, summits)) {
+                graph.get(start).add(new Node(end, time));
+            } else if (gateCheck(end, gates) || summitCheck(start, summits)) {
+                graph.get(end).add(new Node(start, time));
+            } else {
+                graph.get(start).add(new Node(end, time));
+                graph.get(end).add(new Node(start, time));
+            }
         }
 
+        PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                if (o1.time == o2.time) {
+                    return o1.index - o2.index;
+                }
+                return o1.time - o2.time;
+            }
+        });
 
         for (int gate : gates) {
-            PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
-                @Override
-                public int compare(Node o1, Node o2) {
-                    if (o1.time == o2.time) {
-                        return o1.index - o2.index;
-                    }
-                    return o1.time - o2.time;
-                }
-            });
-            boolean[] visited = new boolean[n+1];
-
-            for (int i : gates) {
-                visited[i] = true;
-            }
-
             queue.add(new Node(gate, 0));
+            score[gate] = 0;
+        }
 
-            while(!queue.isEmpty()) {
-                Node node = queue.poll();
-                System.out.println("**************************");
-                System.out.println("현재 위치 : " + node.index);
-                System.out.println("**************************");
-                List<Node> list = graph.get(node.index);
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+            System.out.println("**************************");
+            System.out.println("현재 위치 : " + node.index);
+            System.out.println("**************************");
+            if (node.time > score[node.index]) continue;
 
-                for (Node node2 : list) {
-                    if (visited[node2.index]) continue;
+            List<Node> list = graph.get(node.index);
 
-                    if (summitsSet.contains(node2.index)) {
-                        score[node2.index] = Math.max(node2.time, score[node.index]);
-                    } else {
-                        if (!visited[node2.index] && answer[1] >= node2.time && answer[1] >= score[node.index]) {
-                            score[node2.index] = Math.max(node2.time, score[node.index]);
-                            System.out.println("연결된 위치 : " + node2.index);
-                            System.out.println("여기까지 최대 시간 : " + score[node2.index]);
-                            queue.add(new Node(node2.index, 0));
-                            visited[node2.index] = true;
-                        }
-                    }
-                }
-            }
-            for (int summit : summits) {
-                int time = score[summit];
-                System.out.println("[봉우리: " + summit + "] => " + time);
-                if (time > 0) {
-                    if (answer[1] == time) {
-                        if (answer[0] > summit) answer[0] = summit;
-                    } else if (answer[1] > time) {
-                        answer[1] = time;
-                        answer[0] = summit;
-                    }
+            for (Node node2 : list) {
+
+                int newTime = Math.max(node2.time, score[node.index]);
+                if (score[node2.index] > newTime) {
+                    score[node2.index] = newTime;
+                    System.out.println("연결된 위치 : " + node2.index);
+                    System.out.println("여기까지 최대 시간 : " + score[node2.index]);
+                    queue.add(new Node(node2.index, score[node2.index]));
                 }
             }
         }
 
-        System.out.println(answer[0]+", "+answer[1]);
+        Arrays.sort(summits);
+
+        for (int summit : summits) {
+            int time = score[summit];
+            System.out.println("[봉우리: " + summit + "] => " + time);
+            if (time < answer[1]) {
+                answer[0] = summit;
+                answer[1] = time;
+            }
+        }
+
+        System.out.println(answer[0] + ", " + answer[1]);
         return answer;
+    }
+
+    public boolean gateCheck (int gate, int[] gates) {
+        for (int i : gates) {
+            if (i == gate) return true;
+        }
+        return false;
+    }
+
+    public boolean summitCheck (int summit, int[] summits) {
+        for (int i : summits) {
+            if (i == summit) return true;
+        }
+        return false;
     }
 }
