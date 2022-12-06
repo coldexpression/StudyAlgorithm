@@ -4,70 +4,62 @@ public class problem49995 {
 
     public static void main(String[] args) {
         problem49995 problem49995 = new problem49995();
-        problem49995.solution(new int[]{1,2,4,5});
+        problem49995.solution(new int[]{1,250,1,250,500,500});
     }
 
     public int solution(int[] cookie) {
         int answer = -1;
-        int[] sum = new int[cookie.length];
+        int[] sum = new int[cookie.length+1];
 
-        sum[0] = cookie[0];
-        for(int i=1;i<sum.length;i++) sum[i] = sum[i-1] + cookie[i];
+        sum[1] = cookie[0];
+        for(int i=2;i<sum.length;i++) sum[i] = sum[i-1] + cookie[i-1];
 
-        int total = sum[sum.length-1];
-        int ele = 0;
-        int idx = -1;
+        // [1,2,4,7]
+        // [1, 3, 7, 12]
 
-        while(total - ele > 0) {
-            int num = total - ele;
-            int midIdx = idx;
+        int pivot = sum[cookie.length] / 2;
+        System.out.println("pivot : " + pivot);
 
-            if (num % 2 == 0) {
-                int ss = 0;
-                boolean check = false;
-                int tIdx = midIdx == -1 ? 0 : midIdx;
-                int findIdx = 0;
+        int firstIdx = find(0,pivot, sum, sum.length-1);
+        System.out.println("firstIdx : " + firstIdx);
 
-                while(tIdx < sum.length) {
-                    check = false;
-                    ss = 0;
-                    for (int i = tIdx; i < cookie.length; i++) {
-                        ss += cookie[i];
-                        if (ss == num / 2) {
-                            check = true;
-                            findIdx = i;
-                            break;
-                        } else if (ss > num / 2) {
-                            break;
-                        }
-                    }
-//                    System.out.println("tIdx >> " + tIdx);
-                    if (check || tIdx == cookie.length-1) break;
-                    tIdx++;
-                }
+        if (firstIdx == -1) return 0;
 
-                System.out.println("탈출?");
+        int secondIdx = find(firstIdx, pivot, sum, sum.length-1);
+        System.out.println("secondIdx : " + secondIdx);
 
-                if (check) {
-                    int tSum = 0;
-                    for(int i=findIdx + 1;i<cookie.length;i++) {
-                        tSum += cookie[i];
+        if (secondIdx == -1) return 0;
 
-                        if (tSum == num / 2) {
-                            answer = num / 2;
-                            System.out.println(answer);
-                            return answer;
-                        } else if (tSum > num / 2) {
-                            break;
-                        }
-                    }
-                }
-                midIdx++;
-                ele = sum[++idx];
+        System.out.println(pivot);
+
+        return pivot;
+    }
+
+    public int find(int start, int pivot, int[] sum, int N) {
+        int idx = start;
+        for(int i=start+1;i<=N;i++) {
+            System.out.println("현재 i : " + i);
+            if (i == idx) {
+                idx = 0;
+                continue;
+            }
+
+            System.out.println("sum["+i+"] => " + sum[i]);
+            System.out.println("[idx] => " + idx);
+            System.out.println("minus => " + sum[idx]);
+
+            int minus = sum[idx];
+            if (sum[i] - minus > pivot) {
+                System.out.println("idx >> " + idx);
+                System.out.println("i >> " + i);
+                idx++;
+                i--;
+            } else if (sum[i] - minus == pivot) {
+                return i-1;
             } else {
-                ele = sum[++idx];
+                idx = 0;
             }
         }
-        return answer;
+        return -1;
     }
 }
