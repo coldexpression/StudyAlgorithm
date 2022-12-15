@@ -1,6 +1,82 @@
 package Level4;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class problem60060 {
+
+
+    public class TrieNode {
+
+        private Map<Character, TrieNode> childNode = new HashMap<>();
+        private Map<Integer, Integer> lengthMap = new HashMap<>();
+
+        private boolean endOfWord;
+
+        public Map<Character, TrieNode> getChildNode() {
+            return childNode;
+        }
+
+        public Map<Integer, Integer> getLengthMap() {
+            return lengthMap;
+        }
+
+        public boolean isEndOfWord() {
+            return endOfWord;
+        }
+
+        public void setEndOfWord(boolean endOfWord) {
+            this.endOfWord = endOfWord;
+        }
+    }
+
+    public class Trie {
+        private TrieNode rootNode;
+
+        public Trie() {
+            rootNode = new TrieNode();
+        }
+
+        void insert(String word) {
+            TrieNode thisNode = this.rootNode;
+
+            for (int i = 0; i < word.length(); i++) {
+                if (thisNode.lengthMap.containsKey(word.length())) {
+                    thisNode.lengthMap.put(word.length(), thisNode.lengthMap.get(word.length()) + 1);
+                } else {
+                    thisNode.lengthMap.put(word.length(), 1);
+                }
+
+                thisNode = thisNode.getChildNode().computeIfAbsent(word.charAt(i), val -> new TrieNode());
+            }
+
+            thisNode.setEndOfWord(true);
+        }
+
+        int search(String word) {
+            TrieNode thisNode = this.rootNode;
+
+            for(int i=0;i<word.length();i++) {
+                char c = word.charAt(i);
+                if (c == '?') break;
+
+                if (thisNode.getChildNode().containsKey(c)) {
+                    thisNode = thisNode.getChildNode().get(c);
+                } else {
+                    return 0;
+                }
+            }
+
+            if (thisNode.getLengthMap().containsKey(word.length())) {
+                return thisNode.getLengthMap().get(word.length());
+            }
+
+            return 0;
+
+        }
+    }
 
     public static void main(String[] args) {
         problem60060 problem60060 = new problem60060();
@@ -11,28 +87,24 @@ public class problem60060 {
         int[] answer = new int[queries.length];
         int idx = 0;
 
+        Trie frontTrie = new Trie();
+        Trie backTrie = new Trie();
+
+        for (String word : words) {
+            StringBuilder sb = new StringBuilder();
+            frontTrie.insert(word);
+            backTrie.insert(sb.append(word).reverse().toString());
+        }
+
         for (String query : queries) {
-            int firstIdx = -1;
-
-            firstIdx = query.charAt(0) != '?' ? 0 : -1;
-
-            String keyword = query.replaceAll("\\?","");
-
-            firstIdx = firstIdx == -1 ? query.length() - keyword.length() : firstIdx;
-
-            System.out.println("[KEYWORD] => " + keyword);
-
-            for (String word : words) {
-                int check = firstIdx == 0 ? word.indexOf(keyword) : word.lastIndexOf(keyword);
-                int length = word.length();
-
-                System.out.println("[firstIdx , check] => ["+firstIdx+", "+check+"]");
-                if (firstIdx == check && query.length() == length) answer[idx]++;
-
+            StringBuilder sb = new StringBuilder();
+            if (query.charAt(0) == '?') {
+                answer[idx++] = backTrie.search(sb.append(query).reverse().toString());
+            } else {
+                answer[idx++] = frontTrie.search(query);
             }
-
-            idx++;
         }
         return answer;
     }
+
 }
