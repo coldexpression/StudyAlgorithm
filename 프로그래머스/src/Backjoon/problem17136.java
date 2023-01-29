@@ -6,6 +6,8 @@ public class problem17136 {
 
     static int ans;
 
+    static boolean check;
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
@@ -16,6 +18,7 @@ public class problem17136 {
         List<int[]> list = new ArrayList<>();
 
         ans = Integer.MAX_VALUE;
+        check = false;
 
         for(int i=0;i<10;i++) {
             for(int j=0;j<10;j++) {
@@ -34,55 +37,68 @@ public class problem17136 {
         if (list.isEmpty()) {
             ans = 0;
         } else {
-            int[] pos = list.get(0);
-            dfs(list, 0, visited, paper, pos[0], pos[1], 0);
+            dfs(list, 0, visited, paper, 0);
         }
 
         System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
     }
 
-    static void dfs(List<int[]> list , int listIdx, boolean[][] visited ,int[] paper, int row, int col, int count) {
-        if (listIdx == list.size()) {
-            System.out.println("현재 카운트 : " + count);
-            if (count < ans) {
-                ans = count;
+    static void dfs(List<int[]> list , int listIdx, boolean[][] visited ,int[] paper, int count) {
+        if (listIdx == -1) {
+            if (mapCheck(visited)) {
+                if (count < ans) {
+                    ans = count;
+                    check = true;
+                }
             }
             return ;
         }
 
-            for(int i=4;i>=0;i--) {
+        int[] pos = list.get(listIdx);
+        int row = pos[0];
+        int col = pos[1];
+
+            for(int i=0;i<5;i++) {
                 int paperCount = paper[i];
-                if (paperCount > 0 && validation(visited, row, col, (i+1))) {
-                    System.out.println("통과 : ["+row+", "+col+"] => " + (i+1));
-                    System.out.println("count : " + count);
-                    paper[i]--;
-                    fillBoard(visited, row, col, (i + 1), true);
-                    if (listIdx == list.size()-1) dfs(list, listIdx + 1, visited, paper, row, col, count + 1);
-                    else {
-                        for (int idx = listIdx + 1; idx < list.size(); idx++) {
-                            int[] pos = list.get(idx);
-                            if (!visited[pos[0]][pos[1]]) dfs(list, idx, visited, paper, pos[0], pos[1], count + 1);
+                if (!visited[row][col]) {
+                    if (validation(visited, row, col, (i + 1))) {
+                        if (paperCount > 0) {
+                            paper[i]--;
+                            fillBoard(visited, row, col, (i + 1), true);
+                            int start = -1;
+                            for(int idx = listIdx + 1;idx<list.size();idx++) {
+                                int[] nextPos = list.get(idx);
+
+                                if (!visited[nextPos[0]][nextPos[1]]) {
+                                    start = idx;
+                                    break;
+                                }
+                            }
+
+                            dfs(list, start, visited, paper, count + 1);
+                            fillBoard(visited, row, col, (i + 1), false);
+                            paper[i]++;
                         }
                     }
-                    fillBoard(visited, row, col, (i + 1), false);
-                    paper[i]++;
                 }
-        }
-    }
-
-    static boolean finalCheck (boolean[][] visited) {
-        for(int i=0;i<10;i++)
-            for(int j=0;j<10;j++)
-                if(!visited[i][j]) return false;
-
-        return true;
+            }
     }
 
     static void fillBoard(boolean[][] visited, int row, int col, int size, boolean type) {
         if (row + size - 1 >= 10 || col + size - 1 >= 10) return;
+
+
         for(int i=0;i<size;i++)
             for(int j=0;j<size;j++)
                 visited[row+i][col+j] = type;
+    }
+
+    static boolean mapCheck(boolean[][] visited) {
+        for(int i=0;i<visited.length;i++)
+            for(int j=0;j<visited[i].length;j++)
+                if (!visited[i][j]) return false;
+
+        return true;
     }
 
     static boolean validation(boolean[][] visited, int row, int col, int size) {
