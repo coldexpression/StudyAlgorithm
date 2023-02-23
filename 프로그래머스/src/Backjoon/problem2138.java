@@ -3,6 +3,8 @@ package Backjoon;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class problem2138 {
@@ -20,54 +22,83 @@ public class problem2138 {
 
         ans = Integer.MAX_VALUE;
 
-        set = new HashSet<>();
+        int[] f = new int[n];
+        int[] c = new int[n];
+        int[] l = new int[n];
 
-        set.add(first);
-        dfs(first, last, 0);
+        for(int i=0;i<n;i++) {
+            f[i] = Character.getNumericValue(first.charAt(i));
+            c[i] = Character.getNumericValue(first.charAt(i));
+        }
+        for(int i=0;i<n;i++) l[i] = Character.getNumericValue(last.charAt(i));
+
+        int onCount = 1;
+        int offCount = 0;
+
+
+        // 0번 스위치를 킬 때
+        trans(f, 0);
+
+        for(int i=1;i<=f.length;i++) {
+            Arrays.stream(f).forEach(x -> System.out.print(x + " "));
+            System.out.println();
+            if (check(f, l)) {
+                ans = onCount;
+            }
+            if (i == f.length) break;
+            if (f[i-1] != l[i-1]) {
+                trans(f, i);
+                onCount++;
+            }
+        }
+
+        Arrays.stream(f).forEach(x -> System.out.print(x + " "));
+        System.out.println();
+
+        System.out.println("off");
+        // 0번 스위치를 끌 때
+        for(int i=1;i<=c.length;i++) {
+            Arrays.stream(c).forEach(x -> System.out.print(x + " "));
+            System.out.println();
+            if (check(c, l)) {
+                ans = Math.min(ans, offCount);
+            }
+            if (i == c.length) break;
+            if (c[i-1] != l[i-1]) {
+                trans(c, i);
+                offCount++;
+            }
+        }
+
+        Arrays.stream(c).forEach(x -> System.out.print(x + " "));
+        System.out.println();
+
+        ans = ans == Integer.MAX_VALUE ? -1 : ans;
 
         System.out.println(ans);
     }
 
-    public static String trans(String input, int index) {
-        StringBuilder sb = new StringBuilder();
+    public static boolean check(int[] arr, int[] brr) {
+        for(int i=0;i<arr.length;i++) {
+            if (arr[i] != brr[i]) return false;
+        }
+
+        return true;
+    }
+
+    public static void trans(int[] arr, int index) {
 
         if (index == 0) {
-            for(int i=0;i<input.length();i++) {
-                if (i >= 0 && i <= 1) sb.append(input.charAt(i) == '1' ? '0' : '1');
-                else sb.append(input.charAt(i));
-            }
-        } else if (index == input.length()-1) {
-            for(int i=0;i<input.length();i++) {
-                if (i >= input.length()-2 && i <= input.length()-1) sb.append(input.charAt(i) == '1' ? '0' : '1');
-                else sb.append(input.charAt(i));
-            }
+            arr[0] = arr[0] == 1 ? 0 : 1;
+            arr[1] = arr[1] == 1 ? 0 : 1;
+        } else if (index == arr.length - 1) {
+            arr[index-1] = arr[index-1] == 1 ? 0 : 1;
+            arr[index] = arr[index] == 1 ? 0 : 1;
         } else {
-            for(int i=0;i<input.length();i++) {
-                if (i >= index-1 && i <= index+1) sb.append(input.charAt(i) == '1' ? '0' : '1');
-                else sb.append(input.charAt(i));
-            }
-        }
-
-        return sb.toString();
-    }
-
-    public static void dfs(String first, String last, int cnt) {
-        if (ans < cnt) return;
-        if (first.equals(last)) {
-            ans = cnt;
-            return ;
-        }
-
-        for(int i=0;i<last.length();i++) {
-            if (first.charAt(i) != last.charAt(i)) {
-                System.out.println(first);
-                String newWord = trans(first, i);
-                if (!set.contains(newWord)) {
-                    set.add(newWord);
-                    System.out.println(newWord);
-                    dfs(newWord, last, cnt + 1);
-                }
+            for(int i=index-1;i<=index+1;i++) {
+                arr[i] = arr[i] == 1 ? 0 : 1;
             }
         }
     }
+
 }
