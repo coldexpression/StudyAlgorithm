@@ -29,6 +29,20 @@ public class problem18808 {
                     ", c=" + c +
                     '}';
         }
+
+        public Puzzle rotate() {
+            int nRow = 0;
+            int nCol = this.r - 1;
+            int[][] position = new int[this.c][this.r];
+            for(int col=0;col<this.c;col++) {
+                for(int row=0;row<this.r;row++) {
+                    position[nRow][nCol--] = this.position[row][col];
+                    if (row == this.r - 1) nCol = this.r - 1;
+                }
+                nRow++;
+            }
+            return new Puzzle(position, this.c, this.r);
+        }
     }
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
@@ -78,7 +92,7 @@ public class problem18808 {
             return;
         }
 
-        Puzzle puzzle = rotateCheck ? rotate(puzzles[index]) : puzzles[index];
+        Puzzle puzzle = rotateCheck ? puzzles[index].rotate() : puzzles[index];
         puzzles[index] = puzzle;
         boolean check = false;
         for(int i=0;i<n;i++) {
@@ -134,20 +148,4 @@ public class problem18808 {
         return row >= 0 && row < n && col >= 0 && col < m;
     }
 
-    public static Puzzle rotate(Puzzle puzzle) {
-        int nRow = 0;
-        int nCol = puzzle.r - 1;
-//        System.out.println("NewPuzzle! => " + puzzle);
-        int[][] position = new int[puzzle.c][puzzle.r];
-        for(int col=0;col<puzzle.c;col++) {
-//            System.out.println("nRow : " + nRow);
-            for(int row=0;row<puzzle.r;row++) {
-//                System.out.println("nCol : " + nCol);
-                position[nRow][nCol--] = puzzle.position[row][col];
-                if (row == puzzle.r - 1) nCol = puzzle.r - 1;
-            }
-            nRow++;
-        }
-        return new Puzzle(position, puzzle.c, puzzle.r);
-    }
 }
